@@ -1,1 +1,1 @@
-# HeartRateCamera - a prototype of an iOS app for detecting heart rate by video camera.
+## HeartRateCamera - iOS app prototype for detecting heart rate by video camera.
