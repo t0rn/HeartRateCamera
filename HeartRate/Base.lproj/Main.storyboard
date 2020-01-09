@@ -1,16 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="14460.31" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="BYZ-38-t0r">
-    <device id="retina4_7" orientation="portrait">
-        <adaptation id="fullscreen"/>
-    </device>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="14868" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="svc-8W-yaV">
+    <device id="retina4_7" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14460.20"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14824"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
-        <!--View Controller-->
+        <!--Finger-->
         <scene sceneID="tne-QT-ifu">
             <objects>
                 <viewController id="BYZ-38-t0r" customClass="ViewController" customModule="HeartRate" customModuleProvider="target" sceneMemberID="viewController">
@@ -19,10 +17,10 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="44U-6V-Kgr">
-                                <rect key="frame" x="16" y="20" width="343" height="627"/>
+                                <rect key="frame" x="16" y="0.0" width="343" height="598"/>
                                 <subviews>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="eqz-zS-wDj">
-                                        <rect key="frame" x="148.5" y="564" width="46" height="34"/>
+                                        <rect key="frame" x="148.5" y="535" width="46" height="34"/>
                                         <color key="backgroundColor" red="0.93725490199999995" green="0.93725490199999995" blue="0.95686274510000002" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                         <fontDescription key="fontDescription" type="system" pointSize="18"/>
                                         <state key="normal" title="Torch"/>
@@ -31,7 +29,7 @@
                                         </connections>
                                     </button>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Jab-3c-Szu">
-                                        <rect key="frame" x="150.5" y="303" width="42" height="21"/>
+                                        <rect key="frame" x="150.5" y="288.5" width="42" height="21"/>
                                         <color key="backgroundColor" cocoaTouchSystemColor="groupTableViewBackgroundColor"/>
                                         <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                         <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
@@ -56,6 +54,7 @@
                         </constraints>
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
                     </view>
+                    <tabBarItem key="tabBarItem" title="Finger" id="63f-0a-iSM"/>
                     <connections>
                         <outlet property="previewView" destination="44U-6V-Kgr" id="cih-d7-QCS"/>
                         <outlet property="pulseLabel" destination="Jab-3c-Szu" id="Ca2-5E-mdU"/>
@@ -63,7 +62,65 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
             </objects>
+            <point key="canvasLocation" x="924" y="-165"/>
+        </scene>
+        <!--Tab Bar Controller-->
+        <scene sceneID="zhb-oX-Rvj">
+            <objects>
+                <tabBarController automaticallyAdjustsScrollViewInsets="NO" id="svc-8W-yaV" sceneMemberID="viewController">
+                    <toolbarItems/>
+                    <tabBar key="tabBar" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" id="ff5-CR-NfA">
+                        <autoresizingMask key="autoresizingMask"/>
+                        <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                    </tabBar>
+                    <connections>
+                        <segue destination="BYZ-38-t0r" kind="relationship" relationship="viewControllers" id="QXc-Wm-Ma2"/>
+                        <segue destination="qtp-st-pzY" kind="relationship" relationship="viewControllers" id="rLO-bF-ijS"/>
+                    </connections>
+                </tabBarController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="KEu-hC-YOf" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
             <point key="canvasLocation" x="136.80000000000001" y="131.78410794602701"/>
+        </scene>
+        <!--Face-->
+        <scene sceneID="C3W-k8-0Xq">
+            <objects>
+                <viewController id="qtp-st-pzY" customClass="FaceViewController" customModule="HeartRate" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="G7E-BC-qFP">
+                        <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Um0-vi-cJS">
+                                <rect key="frame" x="26" y="60" width="323" height="438"/>
+                                <color key="backgroundColor" systemColor="labelColor" cocoaTouchSystemColor="darkTextColor"/>
+                            </view>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="zem-FW-L6R" customClass="FaceView" customModule="HeartRate" customModuleProvider="target">
+                                <rect key="frame" x="26" y="60" width="323" height="438"/>
+                                <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                            </view>
+                        </subviews>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
+                        <constraints>
+                            <constraint firstItem="Um0-vi-cJS" firstAttribute="top" secondItem="zem-FW-L6R" secondAttribute="top" id="7yu-kv-tkR"/>
+                            <constraint firstItem="Um0-vi-cJS" firstAttribute="leading" secondItem="zem-FW-L6R" secondAttribute="leading" id="O4n-XZ-ii8"/>
+                            <constraint firstItem="zem-FW-L6R" firstAttribute="top" secondItem="vGk-wL-0EX" secondAttribute="top" constant="60" id="g6O-LT-Vxa"/>
+                            <constraint firstItem="vGk-wL-0EX" firstAttribute="trailing" secondItem="zem-FW-L6R" secondAttribute="trailing" constant="26" id="j4v-9b-6dk"/>
+                            <constraint firstItem="zem-FW-L6R" firstAttribute="leading" secondItem="vGk-wL-0EX" secondAttribute="leading" constant="26" id="mml-u4-BqY"/>
+                            <constraint firstItem="vGk-wL-0EX" firstAttribute="bottom" secondItem="zem-FW-L6R" secondAttribute="bottom" constant="120" id="tMk-VP-j6Q"/>
+                            <constraint firstItem="Um0-vi-cJS" firstAttribute="bottom" secondItem="zem-FW-L6R" secondAttribute="bottom" id="uDa-nA-keQ"/>
+                            <constraint firstItem="Um0-vi-cJS" firstAttribute="trailing" secondItem="zem-FW-L6R" secondAttribute="trailing" id="xeM-Ex-PM3"/>
+                        </constraints>
+                        <viewLayoutGuide key="safeArea" id="vGk-wL-0EX"/>
+                    </view>
+                    <tabBarItem key="tabBarItem" title="Face" id="sW7-AS-NGc"/>
+                    <connections>
+                        <outlet property="faceView" destination="zem-FW-L6R" id="eWe-nE-f6C"/>
+                        <outlet property="previewView" destination="Um0-vi-cJS" id="kQj-28-0nC"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="BS0-fx-t9x" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="924" y="527.58620689655174"/>
         </scene>
     </scenes>
 </document>

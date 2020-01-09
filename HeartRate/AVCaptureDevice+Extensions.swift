@@ -53,8 +53,7 @@ extension AVCaptureDevice {
         return nil
     }
     
-    func updateFormatWithPreferredVideoSpec(preferredSpec: VideoSpec)
-    {
+    func updateFormatWithPreferredVideoSpec(preferredSpec: VideoSpec) {
         let availableFormats: [AVCaptureDevice.Format]
         if let preferredFps = preferredSpec.fps {
             availableFormats = availableFormatsFor(preferredFps: Float64(preferredFps))

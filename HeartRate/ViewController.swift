@@ -35,6 +35,7 @@ class ViewController: UIViewController {
         
     
     }
+    
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         videoCapture.startCapture()
@@ -46,8 +47,9 @@ class ViewController: UIViewController {
             let average = self.pulseDetector.getAverage()
             print("average \(average)")
             let pulse = 60.0/average
-            
-            self.pulseLabel.text = String(describing:pulse)
+            DispatchQueue.main.async {
+                self.pulseLabel.text = String(describing:pulse)
+            }
         }
         toggleTorch()
     }
@@ -131,7 +133,9 @@ extension ViewController {
 //                .write()
             
             print("Put finger on camera!")
-            self.pulseLabel.text = "Put your finger on camera!"
+            DispatchQueue.main.async {
+                self.pulseLabel.text = "Put your finger on camera!"                
+            }
             validFrameCounter = 0
             pulseDetector.reset()
         }

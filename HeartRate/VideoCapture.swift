@@ -17,7 +17,7 @@ enum CameraType : Int {
     func captureDevice() -> AVCaptureDevice {
         switch self {
         case .front:
-            let devices = AVCaptureDevice.DiscoverySession(deviceTypes: [], mediaType: AVMediaType.video, position: .front).devices
+            let devices = AVCaptureDevice.DiscoverySession(deviceTypes: [.builtInWideAngleCamera], mediaType: .video, position: .front).devices
             print("devices:\(devices)")
             for device in devices where device.position == .front {
                 return device
@@ -43,12 +43,11 @@ class VideoCapture: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate {
     private var videoDevice: AVCaptureDevice!
     private var videoConnection: AVCaptureConnection!
     private var audioConnection: AVCaptureConnection!
-    private var previewLayer: AVCaptureVideoPreviewLayer?
+    private(set) var previewLayer: AVCaptureVideoPreviewLayer?
     
     var imageBufferHandler: ImageBufferHandler?
     
-    init(cameraType: CameraType, preferredSpec: VideoSpec?, previewContainer: CALayer?)
-    {
+    init(cameraType: CameraType, preferredSpec: VideoSpec?, previewContainer: CALayer?) {
         super.init()
         
         videoDevice = cameraType.captureDevice()
@@ -133,17 +132,17 @@ class VideoCapture: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate {
         }
     }
     
-    // =========================================================================
     // MARK: - AVCaptureVideoDataOutputSampleBufferDelegate
     
-    func captureOutput(_ output: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from connection: AVCaptureConnection) {
+    func captureOutput(_ output: AVCaptureOutput,
+                       didOutput sampleBuffer: CMSampleBuffer,
+                       from connection: AVCaptureConnection) {
         if connection.videoOrientation != .portrait {
             connection.videoOrientation = .portrait
             return
         }
         
-        if let imageBufferHandler = imageBufferHandler
-        {
+        if let imageBufferHandler = imageBufferHandler {
             imageBufferHandler(sampleBuffer)
         }
     }
