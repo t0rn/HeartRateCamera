@@ -42,7 +42,7 @@ class FaceViewController: UIViewController {
 
     func handle(buffer:CMSampleBuffer) {
         guard let imageBuffer = CMSampleBufferGetImageBuffer(buffer) else {return}
-        let detectFaceRequest = VNDetectFaceRectanglesRequest(completionHandler: detectedFace)
+        let detectFaceRequest = VNDetectFaceLandmarksRequest(completionHandler: detectedFace)
         do {
             try sequenceHandler.perform([detectFaceRequest],
                                         on: imageBuffer,
@@ -101,14 +101,14 @@ class FaceViewController: UIViewController {
             return
         }
         
-      // 3
-      let box = result.boundingBox
-      faceView.boundingBox = convert(rect: box)
+      
+//      let box = result.boundingBox
+//      faceView.boundingBox = convert(rect: box)
+//      DispatchQueue.main.async {
+//        self.faceView.setNeedsDisplay()
+//      }
         
-      // 4
-      DispatchQueue.main.async {
-        self.faceView.setNeedsDisplay()
-      }
+        updateFaceView(for: result)
     }
     
     func convert(rect: CGRect) -> CGRect {
@@ -117,18 +117,82 @@ class FaceViewController: UIViewController {
         let size = videoCapture.previewLayer!.layerPointConverted(fromCaptureDevicePoint: rect.size.cgPoint)
         return CGRect(origin: origin, size: size.cgSize)
     }
-}
+    
+    func landmark(point: CGPoint, to rect: CGRect) -> CGPoint {
+        let absolute = point.absolutePoint(in: rect)
+        let converted = videoCapture.previewLayer!.layerPointConverted(fromCaptureDevicePoint: absolute)
+        return converted
+    }
+    
+    func landmark(points: [CGPoint]?, to rect: CGRect) -> [CGPoint]? {
+      guard let points = points else {
+        return nil
+      }
 
-extension CGSize {
-  var cgPoint: CGPoint {
-    return CGPoint(x: width, y: height)
-  }
-}
+      return points.compactMap { landmark(point: $0, to: rect) }
+    }
+    
+    func updateFaceView(for result: VNFaceObservation) {
+      defer {
+        DispatchQueue.main.async {
+          self.faceView.setNeedsDisplay()
+        }
+      }
 
-extension CGPoint {
-  var cgSize: CGSize {
-    return CGSize(width: x, height: y)
-  }
-  
+      let box = result.boundingBox
+      faceView.boundingBox = convert(rect: box)
+
+      guard let landmarks = result.landmarks else {
+        return
+      }
+
+      if let leftEye = landmark(
+        points: landmarks.leftEye?.normalizedPoints,
+        to: result.boundingBox) {
+        faceView.leftEye = leftEye
+      }
+
+      if let rightEye = landmark(
+        points: landmarks.rightEye?.normalizedPoints,
+        to: result.boundingBox) {
+        faceView.rightEye = rightEye
+      }
+
+      if let leftEyebrow = landmark(
+        points: landmarks.leftEyebrow?.normalizedPoints,
+        to: result.boundingBox) {
+        faceView.leftEyebrow = leftEyebrow
+      }
+
+      if let rightEyebrow = landmark(
+        points: landmarks.rightEyebrow?.normalizedPoints,
+        to: result.boundingBox) {
+        faceView.rightEyebrow = rightEyebrow
+      }
+
+      if let nose = landmark(
+        points: landmarks.nose?.normalizedPoints,
+        to: result.boundingBox) {
+        faceView.nose = nose
+      }
+
+      if let outerLips = landmark(
+        points: landmarks.outerLips?.normalizedPoints,
+        to: result.boundingBox) {
+        faceView.outerLips = outerLips
+      }
+
+      if let innerLips = landmark(
+        points: landmarks.innerLips?.normalizedPoints,
+        to: result.boundingBox) {
+        faceView.innerLips = innerLips
+      }
+
+      if let faceContour = landmark(
+        points: landmarks.faceContour?.normalizedPoints,
+        to: result.boundingBox) {
+        faceView.faceContour = faceContour
+      }
+    }
 }
 
