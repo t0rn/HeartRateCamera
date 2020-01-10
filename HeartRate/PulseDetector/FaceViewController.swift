@@ -91,28 +91,84 @@ class FaceViewController: UIViewController {
         let hsv = rgb2hsv((red:redmean, green: greenmean,blue: bluemean,alpha: 1.0))
         print(hsv)
     }
-
+    
     func detectedFace(request: VNRequest, error: Error?) {
-      guard
-        let results = request.results as? [VNFaceObservation],
-        let result = results.first
-        else {
-            faceView.clear()
-            return
+        guard
+            let results = request.results as? [VNFaceObservation],
+            let result = results.first
+            else {
+                faceView.clear()
+                return
         }
         
-      
-//      let box = result.boundingBox
-//      faceView.boundingBox = convert(rect: box)
-//      DispatchQueue.main.async {
-//        self.faceView.setNeedsDisplay()
-//      }
+        
+        //      let box = result.boundingBox
+        //      faceView.boundingBox = convert(rect: box)
+        //      DispatchQueue.main.async {
+        //        self.faceView.setNeedsDisplay()
+        //      }
         
         updateFaceView(for: result)
     }
     
-    func convert(rect: CGRect) -> CGRect {
+    func updateFaceView(for result: VNFaceObservation) {
+        defer {
+            DispatchQueue.main.async {
+                self.faceView.setNeedsDisplay()
+            }
+        }
         
+        let box = result.boundingBox
+        faceView.boundingBox = convert(rect: box)
+        
+        guard let landmarks = result.landmarks else {return}
+                
+        if let leftEye = landmark(points: landmarks.leftEye?.normalizedPoints, to: result.boundingBox) {
+            faceView.leftEye = leftEye
+        }
+        
+        if let rightEye = landmark( points: landmarks.rightEye?.normalizedPoints, to: result.boundingBox) {
+            faceView.rightEye = rightEye
+        }
+        
+        if let leftEyebrow = landmark(points: landmarks.leftEyebrow?.normalizedPoints, to: result.boundingBox) {
+            faceView.leftEyebrow = leftEyebrow
+        }
+        
+        if let rightEyebrow = landmark( points: landmarks.rightEyebrow?.normalizedPoints, to: result.boundingBox) {
+            faceView.rightEyebrow = rightEyebrow
+        }
+        
+        if let nose = landmark(points: landmarks.nose?.normalizedPoints, to: result.boundingBox) {
+            faceView.nose = nose
+        }
+        
+        if let outerLips = landmark(points: landmarks.outerLips?.normalizedPoints, to: result.boundingBox) {
+            faceView.outerLips = outerLips
+        }
+        
+        if let innerLips = landmark(points: landmarks.innerLips?.normalizedPoints, to: result.boundingBox) {
+            faceView.innerLips = innerLips
+        }
+        
+        if let faceContour = landmark(points: landmarks.faceContour?.normalizedPoints, to: result.boundingBox) {
+            faceView.faceContour = faceContour
+        }
+        
+        if !faceView.leftEyebrow.isEmpty,
+            !faceView.rightEyebrow.isEmpty,
+            !faceView.boundingBox.isEmpty,
+            let leftBrowTopMost = faceView.leftEyebrow.point(for: .topMost),
+            let rightBrowTopMost = faceView.rightEyebrow.point(for: .topMost) {
+            
+            faceView.forehead = [leftBrowTopMost,
+                                 CGPoint(x: leftBrowTopMost.x, y: faceView.boundingBox.minY),
+                                 CGPoint(x: rightBrowTopMost.x, y: faceView.boundingBox.minY),
+                                 rightBrowTopMost]
+        }
+    }
+    
+    func convert(rect: CGRect) -> CGRect {
         let origin = videoCapture.previewLayer!.layerPointConverted(fromCaptureDevicePoint: rect.origin)
         let size = videoCapture.previewLayer!.layerPointConverted(fromCaptureDevicePoint: rect.size.cgPoint)
         return CGRect(origin: origin, size: size.cgSize)
@@ -125,74 +181,9 @@ class FaceViewController: UIViewController {
     }
     
     func landmark(points: [CGPoint]?, to rect: CGRect) -> [CGPoint]? {
-      guard let points = points else {
-        return nil
-      }
-
-      return points.compactMap { landmark(point: $0, to: rect) }
-    }
-    
-    func updateFaceView(for result: VNFaceObservation) {
-      defer {
-        DispatchQueue.main.async {
-          self.faceView.setNeedsDisplay()
-        }
-      }
-
-      let box = result.boundingBox
-      faceView.boundingBox = convert(rect: box)
-
-      guard let landmarks = result.landmarks else {
-        return
-      }
-
-      if let leftEye = landmark(
-        points: landmarks.leftEye?.normalizedPoints,
-        to: result.boundingBox) {
-        faceView.leftEye = leftEye
-      }
-
-      if let rightEye = landmark(
-        points: landmarks.rightEye?.normalizedPoints,
-        to: result.boundingBox) {
-        faceView.rightEye = rightEye
-      }
-
-      if let leftEyebrow = landmark(
-        points: landmarks.leftEyebrow?.normalizedPoints,
-        to: result.boundingBox) {
-        faceView.leftEyebrow = leftEyebrow
-      }
-
-      if let rightEyebrow = landmark(
-        points: landmarks.rightEyebrow?.normalizedPoints,
-        to: result.boundingBox) {
-        faceView.rightEyebrow = rightEyebrow
-      }
-
-      if let nose = landmark(
-        points: landmarks.nose?.normalizedPoints,
-        to: result.boundingBox) {
-        faceView.nose = nose
-      }
-
-      if let outerLips = landmark(
-        points: landmarks.outerLips?.normalizedPoints,
-        to: result.boundingBox) {
-        faceView.outerLips = outerLips
-      }
-
-      if let innerLips = landmark(
-        points: landmarks.innerLips?.normalizedPoints,
-        to: result.boundingBox) {
-        faceView.innerLips = innerLips
-      }
-
-      if let faceContour = landmark(
-        points: landmarks.faceContour?.normalizedPoints,
-        to: result.boundingBox) {
-        faceView.faceContour = faceContour
-      }
+        guard let points = points else {return nil}
+        
+        return points.compactMap { landmark(point: $0, to: rect) }
     }
 }
 

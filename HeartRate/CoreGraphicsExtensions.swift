@@ -55,3 +55,27 @@ extension CGPoint {
     return CGPoint(x: x * rect.size.width, y: y * rect.size.height) + rect.origin
   }
 }
+
+extension CGPoint {
+    enum Position {
+        case topMost
+        case bottomMost
+        case leftMost
+        case rightMost
+    }
+}
+    
+extension Sequence where Element == CGPoint {
+    func point(for position: CGPoint.Position) -> CGPoint? {
+        switch position {
+        case .bottomMost:
+            return self.max{ $0.y < $1.y }
+        case .topMost:
+            return self.max{ $0.y > $1.y }
+        case .leftMost:
+            return self.max{ $0.x > $1.x }
+        case .rightMost:
+            return self.max{ $0.x < $1.x }
+        }
+    }
+}
