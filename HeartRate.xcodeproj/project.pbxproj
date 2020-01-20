@@ -11,6 +11,7 @@
 		330D724223C7B2F9004FA98F /* FaceView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 330D724123C7B2F9004FA98F /* FaceView.swift */; };
 		330D724423C7BAC2004FA98F /* CoreGraphicsExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 330D724323C7BAC2004FA98F /* CoreGraphicsExtensions.swift */; };
 		3315E88121DE146500859B19 /* ColorUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3315E88021DE146500859B19 /* ColorUtils.swift */; };
+		333962B523CB406D0051C6AC /* SignalProcessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 333962B423CB406D0051C6AC /* SignalProcessor.swift */; };
 		334CD13021CE64B3002DF0F5 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 334CD12F21CE64B3002DF0F5 /* AppDelegate.swift */; };
 		334CD13221CE64B3002DF0F5 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 334CD13121CE64B3002DF0F5 /* ViewController.swift */; };
 		334CD13521CE64B3002DF0F5 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 334CD13321CE64B3002DF0F5 /* Main.storyboard */; };
@@ -28,6 +29,7 @@
 		330D724123C7B2F9004FA98F /* FaceView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FaceView.swift; sourceTree = "<group>"; };
 		330D724323C7BAC2004FA98F /* CoreGraphicsExtensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CoreGraphicsExtensions.swift; sourceTree = "<group>"; };
 		3315E88021DE146500859B19 /* ColorUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColorUtils.swift; sourceTree = "<group>"; };
+		333962B423CB406D0051C6AC /* SignalProcessor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignalProcessor.swift; sourceTree = "<group>"; };
 		334CD12C21CE64B3002DF0F5 /* HeartRate.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = HeartRate.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		334CD12F21CE64B3002DF0F5 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		334CD13121CE64B3002DF0F5 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
@@ -78,6 +80,7 @@
 			children = (
 				334CD14521CE733E002DF0F5 /* AVCaptureDevice+Extensions.swift */,
 				334CD14321CE72E7002DF0F5 /* VideoCapture.swift */,
+				333962B423CB406D0051C6AC /* SignalProcessor.swift */,
 				33AC596522E3A085004EA38E /* PulseDetector */,
 				339B128C222BD17700DBA135 /* Filter */,
 				334CD12F21CE64B3002DF0F5 /* AppDelegate.swift */,
@@ -187,6 +190,7 @@
 			files = (
 				334CD14421CE72E7002DF0F5 /* VideoCapture.swift in Sources */,
 				339B128B222BD16700DBA135 /* Filter.m in Sources */,
+				333962B523CB406D0051C6AC /* SignalProcessor.swift in Sources */,
 				334CD13221CE64B3002DF0F5 /* ViewController.swift in Sources */,
 				330D724023C7AE99004FA98F /* FaceViewController.swift in Sources */,
 				339B128F222BD2E300DBA135 /* PulseDetector.mm in Sources */,

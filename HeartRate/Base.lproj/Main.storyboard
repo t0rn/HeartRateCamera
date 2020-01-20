@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="14868" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="svc-8W-yaV">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="15505" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="svc-8W-yaV">
     <device id="retina4_7" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14824"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="15509"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
@@ -70,6 +70,7 @@
                 <tabBarController automaticallyAdjustsScrollViewInsets="NO" id="svc-8W-yaV" sceneMemberID="viewController">
                     <toolbarItems/>
                     <tabBar key="tabBar" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" id="ff5-CR-NfA">
+                        <rect key="frame" x="0.0" y="0.0" width="1000" height="1000"/>
                         <autoresizingMask key="autoresizingMask"/>
                         <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                     </tabBar>
@@ -98,14 +99,22 @@
                                 <rect key="frame" x="26" y="60" width="323" height="438"/>
                                 <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                             </view>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Pulse" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="oer-hH-S7X">
+                                <rect key="frame" x="166.5" y="506" width="42" height="21"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <nil key="textColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
                         </subviews>
                         <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
                         <constraints>
+                            <constraint firstItem="oer-hH-S7X" firstAttribute="top" secondItem="Um0-vi-cJS" secondAttribute="bottom" constant="8" id="4WA-c1-iJo"/>
                             <constraint firstItem="Um0-vi-cJS" firstAttribute="top" secondItem="zem-FW-L6R" secondAttribute="top" id="7yu-kv-tkR"/>
                             <constraint firstItem="Um0-vi-cJS" firstAttribute="leading" secondItem="zem-FW-L6R" secondAttribute="leading" id="O4n-XZ-ii8"/>
                             <constraint firstItem="zem-FW-L6R" firstAttribute="top" secondItem="vGk-wL-0EX" secondAttribute="top" constant="60" id="g6O-LT-Vxa"/>
                             <constraint firstItem="vGk-wL-0EX" firstAttribute="trailing" secondItem="zem-FW-L6R" secondAttribute="trailing" constant="26" id="j4v-9b-6dk"/>
                             <constraint firstItem="zem-FW-L6R" firstAttribute="leading" secondItem="vGk-wL-0EX" secondAttribute="leading" constant="26" id="mml-u4-BqY"/>
+                            <constraint firstItem="oer-hH-S7X" firstAttribute="centerX" secondItem="G7E-BC-qFP" secondAttribute="centerX" id="ogi-0P-7wK"/>
                             <constraint firstItem="vGk-wL-0EX" firstAttribute="bottom" secondItem="zem-FW-L6R" secondAttribute="bottom" constant="120" id="tMk-VP-j6Q"/>
                             <constraint firstItem="Um0-vi-cJS" firstAttribute="bottom" secondItem="zem-FW-L6R" secondAttribute="bottom" id="uDa-nA-keQ"/>
                             <constraint firstItem="Um0-vi-cJS" firstAttribute="trailing" secondItem="zem-FW-L6R" secondAttribute="trailing" id="xeM-Ex-PM3"/>
@@ -116,6 +125,7 @@
                     <connections>
                         <outlet property="faceView" destination="zem-FW-L6R" id="eWe-nE-f6C"/>
                         <outlet property="previewView" destination="Um0-vi-cJS" id="kQj-28-0nC"/>
+                        <outlet property="pulseLabel" destination="oer-hH-S7X" id="NLD-9Y-jVC"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="BS0-fx-t9x" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
