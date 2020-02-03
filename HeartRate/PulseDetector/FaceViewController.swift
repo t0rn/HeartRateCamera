@@ -15,6 +15,8 @@ class FaceViewController: UIViewController {
     
     @IBOutlet weak var faceView: FaceView!
     @IBOutlet weak var previewView: UIView!
+    @IBOutlet weak var pulseLabel: UILabel!
+    private let signalProcessor = SignalProcessor()
     
     lazy var videoCapture: VideoCapture = {
         let spec = VideoSpec(fps: 30, size: CGSize(width: 300, height: 300))
@@ -33,6 +35,16 @@ class FaceViewController: UIViewController {
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         videoCapture.startCapture()
+        Timer.scheduledTimer(withTimeInterval: 0.5, repeats: true) { [weak self] (timer) in
+            guard let self = self else {return}
+            //print valid frames
+            //            let validFrames = min(100, (100*self.hrBuffer.validFrameCounter)/10) //10 is a MIN_FRAMES_FOR_FILTER_TO_SETTLE
+            print("pulse \(self.signalProcessor.pulse)")
+            DispatchQueue.main.async {
+                self.pulseLabel.text = String(describing:self.signalProcessor.pulse)
+            }
+        }
+
     }
     
     override func viewDidLoad() {
@@ -42,54 +54,31 @@ class FaceViewController: UIViewController {
 
     func handle(buffer:CMSampleBuffer) {
         guard let imageBuffer = CMSampleBufferGetImageBuffer(buffer) else {return}
+        //crop image buffer to ROI (forehead) size
         let detectFaceRequest = VNDetectFaceLandmarksRequest(completionHandler: detectedFace)
         do {
             try sequenceHandler.perform([detectFaceRequest],
                                         on: imageBuffer,
                                         orientation: .leftMirrored)
+            if false == faceView.forehead.isEmpty,
+                let topMostPoint = faceView.forehead.point(for: .topMost),
+                let bottomMostPoint = faceView.forehead.point(for: .bottomMost),
+                let rightMostPoint = faceView.forehead.point(for: .rightMost),
+                let leftMostPoint = faceView.forehead.point(for: .leftMost) {
+                let origin = CGPoint(x: leftMostPoint.x,
+                                     y: topMostPoint.y)
+                let foreheadRect = CGRect(x: origin.x,
+                                          y: origin.y,
+                                          width: rightMostPoint.x - leftMostPoint.x,
+                                          height: bottomMostPoint.y - topMostPoint.y)
+                signalProcessor.handle(imageBuffer: imageBuffer, cropRect: foreheadRect)
+            }
         } catch {
             print(error.localizedDescription)
             return
         }
         
-        var redmean:CGFloat = 0.0;
-        var greenmean:CGFloat = 0.0;
-        var bluemean:CGFloat = 0.0;
         
-        let pixelBuffer = CMSampleBufferGetImageBuffer(buffer)
-        let cameraImage = CIImage(cvPixelBuffer: pixelBuffer!)
-        
-        let extent = cameraImage.extent
-        let inputExtent = CIVector(x: extent.origin.x, y: extent.origin.y, z: extent.size.width, w: extent.size.height)
-        let averageFilter = CIFilter(name: "CIAreaAverage",
-                                     parameters: [kCIInputImageKey: cameraImage, kCIInputExtentKey: inputExtent])!
-        let outputImage = averageFilter.outputImage!
-        
-        let ctx = CIContext(options:nil)
-        let cgImage = ctx.createCGImage(outputImage, from:outputImage.extent)!
-        
-        let rawData:NSData = cgImage.dataProvider!.data!
-        let pixels = rawData.bytes.assumingMemoryBound(to: UInt8.self)
-        let bytes = UnsafeBufferPointer<UInt8>(start:pixels, count:rawData.length)
-        var BGRA_index = 0
-        for pixel in UnsafeBufferPointer(start: bytes.baseAddress, count: bytes.count) {
-            switch BGRA_index {
-            case 0:
-                bluemean = CGFloat (pixel)
-            case 1:
-                greenmean = CGFloat (pixel)
-            case 2:
-                redmean = CGFloat (pixel)
-            case 3:
-                break
-            default:
-                break
-            }
-            BGRA_index += 1
-        }
-        
-        let hsv = rgb2hsv((red:redmean, green: greenmean,blue: bluemean,alpha: 1.0))
-        print(hsv)
     }
     
     func detectedFace(request: VNRequest, error: Error?) {
@@ -123,36 +112,12 @@ class FaceViewController: UIViewController {
         
         guard let landmarks = result.landmarks else {return}
                 
-        if let leftEye = landmark(points: landmarks.leftEye?.normalizedPoints, to: result.boundingBox) {
-            faceView.leftEye = leftEye
-        }
-        
-        if let rightEye = landmark( points: landmarks.rightEye?.normalizedPoints, to: result.boundingBox) {
-            faceView.rightEye = rightEye
-        }
-        
         if let leftEyebrow = landmark(points: landmarks.leftEyebrow?.normalizedPoints, to: result.boundingBox) {
             faceView.leftEyebrow = leftEyebrow
         }
         
         if let rightEyebrow = landmark( points: landmarks.rightEyebrow?.normalizedPoints, to: result.boundingBox) {
             faceView.rightEyebrow = rightEyebrow
-        }
-        
-        if let nose = landmark(points: landmarks.nose?.normalizedPoints, to: result.boundingBox) {
-            faceView.nose = nose
-        }
-        
-        if let outerLips = landmark(points: landmarks.outerLips?.normalizedPoints, to: result.boundingBox) {
-            faceView.outerLips = outerLips
-        }
-        
-        if let innerLips = landmark(points: landmarks.innerLips?.normalizedPoints, to: result.boundingBox) {
-            faceView.innerLips = innerLips
-        }
-        
-        if let faceContour = landmark(points: landmarks.faceContour?.normalizedPoints, to: result.boundingBox) {
-            faceView.faceContour = faceContour
         }
         
         if !faceView.leftEyebrow.isEmpty,

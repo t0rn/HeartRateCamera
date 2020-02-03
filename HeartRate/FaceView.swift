@@ -30,26 +30,17 @@ import UIKit
 import Vision
 
 class FaceView: UIView {
-    var leftEye: [CGPoint] = []
-    var rightEye: [CGPoint] = []
+    
     var leftEyebrow: [CGPoint] = []
     var rightEyebrow: [CGPoint] = []
-    var nose: [CGPoint] = []
-    var outerLips: [CGPoint] = []
-    var innerLips: [CGPoint] = []
-    var faceContour: [CGPoint] = []
+    
     var forehead: [CGPoint] = []
     var boundingBox = CGRect.zero
     
     func clear() {
-        leftEye = []
-        rightEye = []
+        
         leftEyebrow = []
         rightEyebrow = []
-        nose = []
-        outerLips = []
-        innerLips = []
-        faceContour = []
         forehead = []
         
         boundingBox = .zero
@@ -76,18 +67,6 @@ class FaceView: UIView {
         
         UIColor.white.setStroke()
         
-        if !leftEye.isEmpty {
-            context.addLines(between: leftEye)
-            context.closePath()
-            context.strokePath()
-        }
-        
-        if !rightEye.isEmpty {
-            context.addLines(between: rightEye)
-            context.closePath()
-            context.strokePath()
-        }
-        
         if !leftEyebrow.isEmpty {
             context.addLines(between: leftEyebrow)
             context.strokePath()
@@ -95,25 +74,6 @@ class FaceView: UIView {
         
         if !rightEyebrow.isEmpty {
             context.addLines(between: rightEyebrow)
-            context.strokePath()
-        }
-                
-        if !faceContour.isEmpty {
-            context.addLines(between: faceContour)
-            context.strokePath()
-        }
-        
-        if !leftEyebrow.isEmpty,
-            !rightEyebrow.isEmpty,
-            !boundingBox.isEmpty,
-            let leftBrowTopMost = leftEyebrow.point(for: .topMost),
-            let rightBrowTopMost = rightEyebrow.point(for: .topMost) {
-            
-            context.addLines(between: [leftBrowTopMost,
-                                       CGPoint(x: leftBrowTopMost.x, y: boundingBox.minY),
-                                       CGPoint(x: rightBrowTopMost.x, y: boundingBox.minY),
-                                       rightBrowTopMost])
-            context.closePath()
             context.strokePath()
         }
         
