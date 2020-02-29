@@ -17,10 +17,10 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="44U-6V-Kgr">
-                                <rect key="frame" x="16" y="0.0" width="343" height="598"/>
+                                <rect key="frame" x="16" y="0.0" width="343" height="647"/>
                                 <subviews>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="eqz-zS-wDj">
-                                        <rect key="frame" x="148.5" y="535" width="46" height="34"/>
+                                        <rect key="frame" x="148.5" y="584" width="46" height="34"/>
                                         <color key="backgroundColor" red="0.93725490199999995" green="0.93725490199999995" blue="0.95686274510000002" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                         <fontDescription key="fontDescription" type="system" pointSize="18"/>
                                         <state key="normal" title="Torch"/>
@@ -29,7 +29,7 @@
                                         </connections>
                                     </button>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Jab-3c-Szu">
-                                        <rect key="frame" x="150.5" y="288.5" width="42" height="21"/>
+                                        <rect key="frame" x="150.5" y="313" width="42" height="21"/>
                                         <color key="backgroundColor" cocoaTouchSystemColor="groupTableViewBackgroundColor"/>
                                         <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                         <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
@@ -75,7 +75,6 @@
                         <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                     </tabBar>
                     <connections>
-                        <segue destination="BYZ-38-t0r" kind="relationship" relationship="viewControllers" id="QXc-Wm-Ma2"/>
                         <segue destination="qtp-st-pzY" kind="relationship" relationship="viewControllers" id="rLO-bF-ijS"/>
                     </connections>
                 </tabBarController>
@@ -105,12 +104,20 @@
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="PRY-yb-YcD">
+                                <rect key="frame" x="144.5" y="545" width="86" height="47"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="86" id="dci-9T-ywp"/>
+                                </constraints>
+                            </view>
                         </subviews>
-                        <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
+                        <color key="backgroundColor" cocoaTouchSystemColor="groupTableViewBackgroundColor"/>
                         <constraints>
                             <constraint firstItem="oer-hH-S7X" firstAttribute="top" secondItem="Um0-vi-cJS" secondAttribute="bottom" constant="8" id="4WA-c1-iJo"/>
                             <constraint firstItem="Um0-vi-cJS" firstAttribute="top" secondItem="zem-FW-L6R" secondAttribute="top" id="7yu-kv-tkR"/>
+                            <constraint firstItem="vGk-wL-0EX" firstAttribute="bottom" secondItem="PRY-yb-YcD" secondAttribute="bottom" constant="26" id="ADL-Rc-0va"/>
                             <constraint firstItem="Um0-vi-cJS" firstAttribute="leading" secondItem="zem-FW-L6R" secondAttribute="leading" id="O4n-XZ-ii8"/>
+                            <constraint firstItem="PRY-yb-YcD" firstAttribute="centerX" secondItem="G7E-BC-qFP" secondAttribute="centerX" id="Vk7-yY-mdP"/>
                             <constraint firstItem="zem-FW-L6R" firstAttribute="top" secondItem="vGk-wL-0EX" secondAttribute="top" constant="60" id="g6O-LT-Vxa"/>
                             <constraint firstItem="vGk-wL-0EX" firstAttribute="trailing" secondItem="zem-FW-L6R" secondAttribute="trailing" constant="26" id="j4v-9b-6dk"/>
                             <constraint firstItem="zem-FW-L6R" firstAttribute="leading" secondItem="vGk-wL-0EX" secondAttribute="leading" constant="26" id="mml-u4-BqY"/>
@@ -118,11 +125,13 @@
                             <constraint firstItem="vGk-wL-0EX" firstAttribute="bottom" secondItem="zem-FW-L6R" secondAttribute="bottom" constant="120" id="tMk-VP-j6Q"/>
                             <constraint firstItem="Um0-vi-cJS" firstAttribute="bottom" secondItem="zem-FW-L6R" secondAttribute="bottom" id="uDa-nA-keQ"/>
                             <constraint firstItem="Um0-vi-cJS" firstAttribute="trailing" secondItem="zem-FW-L6R" secondAttribute="trailing" id="xeM-Ex-PM3"/>
+                            <constraint firstItem="PRY-yb-YcD" firstAttribute="top" secondItem="oer-hH-S7X" secondAttribute="bottom" constant="18" id="zYl-G4-QKj"/>
                         </constraints>
                         <viewLayoutGuide key="safeArea" id="vGk-wL-0EX"/>
                     </view>
                     <tabBarItem key="tabBarItem" title="Face" id="sW7-AS-NGc"/>
                     <connections>
+                        <outlet property="colorView" destination="PRY-yb-YcD" id="K22-w8-zK0"/>
                         <outlet property="faceView" destination="zem-FW-L6R" id="eWe-nE-f6C"/>
                         <outlet property="previewView" destination="Um0-vi-cJS" id="kQj-28-0nC"/>
                         <outlet property="pulseLabel" destination="oer-hH-S7X" id="NLD-9Y-jVC"/>

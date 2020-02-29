@@ -18,6 +18,8 @@ class FaceViewController: UIViewController {
     @IBOutlet weak var pulseLabel: UILabel!
     private let signalProcessor = SignalProcessor()
     
+    @IBOutlet weak var colorView: UIView!
+    
     lazy var videoCapture: VideoCapture = {
         let spec = VideoSpec(fps: 30, size: CGSize(width: 300, height: 300))
         let videoCapture = VideoCapture(cameraType: .front,
@@ -42,6 +44,7 @@ class FaceViewController: UIViewController {
             print("pulse \(self.signalProcessor.pulse)")
             DispatchQueue.main.async {
                 self.pulseLabel.text = String(describing:self.signalProcessor.pulse)
+                self.colorView.backgroundColor = self.signalProcessor.colors.last ?? UIColor.darkGray
             }
         }
 

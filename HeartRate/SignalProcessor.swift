@@ -13,6 +13,9 @@ class SignalProcessor {
     private(set) var validFrameCounter = 0
     private var hueFilter = Filter()
     private var inputs: [CGFloat] = []
+    private(set) var colors: [UIColor] = []
+    
+    private let ciContext = CIContext(options: [.workingColorSpace: kCFNull])
     
     var pulse:Float {
         return 60.0/average
@@ -23,29 +26,58 @@ class SignalProcessor {
     }
     
     func handle(imageBuffer: CVImageBuffer, cropRect:CGRect? = nil) {
+
+        guard let inputCGImage = CIImage(cvImageBuffer: imageBuffer).cgImage() else {return}
+        var inputImage = CIImage(cgImage: inputCGImage)
         
+        print("inputImage before crop: \(inputImage)")
+        print("cropRect \(cropRect)")
+        if let cropRect = cropRect {
+            inputImage = inputImage.cropped(to: cropRect)
+        }
+        print("inputImage after crop \(inputImage)")
+        
+        guard inputImage.extent.isEmpty == false,
+            let averageColor = inputImage.averageColor(in:ciContext) else {
+                print("Cant create averageColor!")
+                return
+        }
+        guard let cgImage = averageColor.cgImage() else {
+            print("Cant create cgImage!")
+            return
+        }
+        print(cgImage)
+////        let inputImage = CIImage(cvPixelBuffer: imageBuffer)
+////        guard let inputImage = CIImage(cvImageBuffer: imageBuffer) else {return}
+//        let extent = inputImage.extent
+//        var inputExtent = CIVector(x: extent.origin.x, y: extent.origin.y, z: extent.size.width, w: extent.size.height)
+//        if let cropRect = cropRect {
+//            inputExtent = CIVector(cgRect: cropRect)
+//        }
+//
+//        let filterParams:[String : Any]? = [kCIInputImageKey: inputImage, kCIInputExtentKey: inputExtent]
+//
+//        guard
+//            let averageFilter = CIFilter(name: "CIAreaAverage", parameters: filterParams),
+//            let outputImage = averageFilter.outputImage else {
+//                print("Can't apply CIAreaAverage filter")
+//                return
+//        }
+//
+//        print("outputImage: \(outputImage)") //outputImage extend is empty!
+//        guard let cgImage = context.createCGImage(outputImage, from: outputImage.extent) else {
+//            print("can't create cgImage")
+//            return
+//        }
+//
+////        let uiimage = UIImage(ciImage: outputImage)
+////        let color = uiimage.getPixelColor(at: CGPoint(x: 0.0, y: 0.0) )
+////TOOD: color from CIImage
+//
         var redmean:CGFloat = 0.0;
         var greenmean:CGFloat = 0.0;
         var bluemean:CGFloat = 0.0;
-        
-        let cameraImage = CIImage(cvPixelBuffer: imageBuffer)
-        
 
-        
-        let extent = cameraImage.extent
-        var inputExtent = CIVector(x: extent.origin.x, y: extent.origin.y, z: extent.size.width, w: extent.size.height)
-        if let cropRect = cropRect {
-            inputExtent = CIVector(cgRect: cropRect)
-        }
-        let averageFilter = CIFilter(name: "CIAreaAverage",
-                                     parameters: [kCIInputImageKey: cameraImage, kCIInputExtentKey: inputExtent])!
-        guard let outputImage = averageFilter.outputImage else {
-            fatalError("Can't apply CIAreaAverage filter")
-        }
-        
-        let ctx = CIContext(options:nil)
-        let cgImage = ctx.createCGImage(outputImage, from: outputImage.extent)!
-        
         let rawData:NSData = cgImage.dataProvider!.data!
         let pixels = rawData.bytes.assumingMemoryBound(to: UInt8.self)
         let bytes = UnsafeBufferPointer<UInt8>(start:pixels, count:rawData.length)
@@ -65,10 +97,15 @@ class SignalProcessor {
             }
             BGRA_index += 1
         }
-        
         let hsv = rgb2hsv((red:redmean, green: greenmean,blue: bluemean,alpha: 1.0))
+        print("hsv: \(hsv)")
+
+////        let color = UIColor(red: redmean/255.0, green: greenmean/255.0, blue: bluemean/255.0, alpha: 1.0)
+        colors.append(averageColor)
+        print("averageColor \(averageColor)" )
+        
         // do a sanity check to see if a finger is placed over the camera
-        if(hsv.1>0.5 && hsv.2>0.5) {
+        if(hsv.1>0.01  && hsv.2>50) {
             print("finger on torch")
             validFrameCounter += 1
             inputs.append(hsv.0)
@@ -95,4 +132,94 @@ class SignalProcessor {
             pulseDetector.reset()
         }
     }
+}
+
+extension CIImage {
+    func averageColor(in context:CIContext = CIContext(options: [.workingColorSpace: kCFNull])) -> UIColor? {
+        let inputImage = self
+        let extentVector = CIVector(x: inputImage.extent.origin.x, y: inputImage.extent.origin.y, z: inputImage.extent.size.width, w: inputImage.extent.size.height)
+
+        guard let filter = CIFilter(name: "CIAreaAverage", parameters: [kCIInputImageKey: inputImage, kCIInputExtentKey: extentVector]) else { return nil }
+        guard let outputImage = filter.outputImage else {
+            return nil
+        }
+        var bitmap = [UInt8](repeating: 0, count: 4)
+        let context = CIContext(options: [.workingColorSpace: kCFNull])
+        context.render(outputImage, toBitmap: &bitmap, rowBytes: 4, bounds: CGRect(x: 0, y: 0, width: 1, height: 1), format: .RGBA8, colorSpace: nil)
+
+        return UIColor(red: CGFloat(bitmap[0]) / 255, green: CGFloat(bitmap[1]) / 255, blue: CGFloat(bitmap[2]) / 255, alpha: CGFloat(bitmap[3]) / 255)
+    }
+}
+extension UIColor {
+    
+    ///returns solid color image
+    func cgImage(size:CGSize = CGSize(width: 1, height: 1)) -> CGImage? {
+        let rect = CGRect(origin: .zero, size: size)
+        UIGraphicsBeginImageContextWithOptions(rect.size, false, 0.0)
+        self.setFill()
+        UIRectFill(rect)
+        let image = UIGraphicsGetImageFromCurrentImageContext()
+        UIGraphicsEndImageContext()
+        
+        guard let cgImage = image?.cgImage else { return nil }
+        return cgImage
+    }
+    
+    func image(size:CGSize = CGSize(width: 1, height: 1)) -> UIImage? {
+        guard let cgImage = self.cgImage() else {return nil}
+        return UIImage(cgImage: cgImage)
+    }
+}
+
+extension UIImage {
+    var averageColor: UIColor? {
+        guard let inputImage = CIImage(image: self) else { return nil }
+        return inputImage.averageColor()
+    }
+}
+
+
+public extension UIImage {
+    
+    func getPixelColor(at point: CGPoint) -> UIColor {
+        guard
+            let cgImage = cgImage,
+            let cgData = cgImage.dataProvider?.data,
+            let pixelData = CGDataProvider(data: cgData)?.data,
+            let data = CFDataGetBytePtr(pixelData)
+            else { return UIColor.clear }
+        
+        let x = Int(point.x)
+        let y = Int(point.y)
+        let index = Int(size.width) * y + x
+        let expectedLengthA = Int(size.width * size.height)
+        let expectedLengthGrayScale = 2 * expectedLengthA
+        let expectedLengthRGB = 3 * expectedLengthA
+        let expectedLengthRGBA = 4 * expectedLengthA
+        let numBytes = CFDataGetLength(pixelData)
+        switch numBytes {
+        case expectedLengthA:
+            return UIColor(red: 0, green: 0, blue: 0, alpha: CGFloat(data[index])/255.0)
+        case expectedLengthGrayScale:
+            return UIColor(white: CGFloat(data[2 * index]) / 255.0, alpha: CGFloat(data[2 * index + 1]) / 255.0)
+        case expectedLengthRGB:
+            return UIColor(red: CGFloat(data[3*index])/255.0, green: CGFloat(data[3*index+1])/255.0, blue: CGFloat(data[3*index+2])/255.0, alpha: 1.0)
+        case expectedLengthRGBA:
+            return UIColor(red: CGFloat(data[4*index])/255.0, green: CGFloat(data[4*index+1])/255.0, blue: CGFloat(data[4*index+2])/255.0, alpha: CGFloat(data[4*index+3])/255.0)
+        default:
+            // unsupported format
+            return UIColor.clear
+        }
+    }
+}
+
+import CoreImage
+
+extension CIImage {
+  func cgImage() -> CGImage? {
+    if cgImage != nil {
+      return cgImage
+    }
+    return CIContext().createCGImage(self, from: extent)
+  }
 }
