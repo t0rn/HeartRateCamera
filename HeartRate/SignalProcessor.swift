@@ -30,8 +30,6 @@ class SignalProcessor {
         guard let inputCGImage = CIImage(cvImageBuffer: imageBuffer).cgImage() else {return}
         var inputImage = CIImage(cgImage: inputCGImage)
         
-        print("inputImage before crop: \(inputImage)")
-        print("cropRect \(cropRect)")
         if let cropRect = cropRect {
             inputImage = inputImage.cropped(to: cropRect)
         }
@@ -47,33 +45,6 @@ class SignalProcessor {
             return
         }
         print(cgImage)
-////        let inputImage = CIImage(cvPixelBuffer: imageBuffer)
-////        guard let inputImage = CIImage(cvImageBuffer: imageBuffer) else {return}
-//        let extent = inputImage.extent
-//        var inputExtent = CIVector(x: extent.origin.x, y: extent.origin.y, z: extent.size.width, w: extent.size.height)
-//        if let cropRect = cropRect {
-//            inputExtent = CIVector(cgRect: cropRect)
-//        }
-//
-//        let filterParams:[String : Any]? = [kCIInputImageKey: inputImage, kCIInputExtentKey: inputExtent]
-//
-//        guard
-//            let averageFilter = CIFilter(name: "CIAreaAverage", parameters: filterParams),
-//            let outputImage = averageFilter.outputImage else {
-//                print("Can't apply CIAreaAverage filter")
-//                return
-//        }
-//
-//        print("outputImage: \(outputImage)") //outputImage extend is empty!
-//        guard let cgImage = context.createCGImage(outputImage, from: outputImage.extent) else {
-//            print("can't create cgImage")
-//            return
-//        }
-//
-////        let uiimage = UIImage(ciImage: outputImage)
-////        let color = uiimage.getPixelColor(at: CGPoint(x: 0.0, y: 0.0) )
-////TOOD: color from CIImage
-//
         var redmean:CGFloat = 0.0;
         var greenmean:CGFloat = 0.0;
         var bluemean:CGFloat = 0.0;

@@ -10,34 +10,32 @@ import Foundation
 import AVFoundation
 
 
-enum CameraType : Int {
-    case back
-    case front
-    
-    func captureDevice() -> AVCaptureDevice {
-        switch self {
-        case .front:
-            let devices = AVCaptureDevice.DiscoverySession(deviceTypes: [.builtInWideAngleCamera], mediaType: .video, position: .front).devices
-            print("devices:\(devices)")
-            for device in devices where device.position == .front {
-                return device
+class VideoCaptureService: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate {
+    enum CameraType : Int {
+        case back
+        case front
+        
+        func captureDevice() -> AVCaptureDevice {
+            switch self {
+            case .front:
+                let devices = AVCaptureDevice.DiscoverySession(deviceTypes: [.builtInWideAngleCamera], mediaType: .video, position: .front).devices
+                print("devices:\(devices)")
+                for device in devices where device.position == .front {
+                    return device
+                }
+            default:
+                break
             }
-        default:
-            break
+            return AVCaptureDevice.default(for: .video)!
         }
-        return AVCaptureDevice.default(for: .video)!
     }
-}
 
-
-struct VideoSpec {
-    var fps: Int32?
-    var size: CGSize?
-}
-
-typealias ImageBufferHandler = ((_ imageBuffer: CMSampleBuffer) -> ())
-
-class VideoCapture: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate {
+    struct VideoSpec {
+        var fps: Int32?
+        var size: CGSize?
+    }
+    
+    typealias ImageBufferHandler = ((_ imageBuffer: CMSampleBuffer) -> ())
     
     private let captureSession = AVCaptureSession()
     private var videoDevice: AVCaptureDevice!
