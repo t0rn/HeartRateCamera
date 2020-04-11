@@ -13,6 +13,7 @@ class SignalProcessor {
     private(set) var validFrameCounter = 0
     private var hueFilter = Filter()
     private var inputs: [CGFloat] = []
+    private var filtered: [Float] = []
     private(set) var colors: [UIColor] = []
     
     private let ciContext = CIContext(options: [.workingColorSpace: kCFNull])
@@ -76,13 +77,14 @@ class SignalProcessor {
         print("averageColor \(averageColor)" )
         
         // do a sanity check to see if a finger is placed over the camera
-        if(hsv.1>0.01  && hsv.2>50) {
+        if(hsv.1>0.06  && hsv.2>50) {
             print("finger on torch")
             validFrameCounter += 1
             inputs.append(hsv.0)
             // filter the hue value - the filter is a simple band pass filter that removes any DC component
             //and any high frequency noise
             let filtered = hueFilter.processValue(Float(hsv.0))
+            self.filtered.append(filtered)
             // have we collected enough frames for the filter to settle?
             //TODO: use constant MIN_FRAMES_FOR_FILTER_TO_SETTLE for exameple
             if validFrameCounter > 10 {
@@ -90,9 +92,14 @@ class SignalProcessor {
             }
         } else {
             //uncomment for writing into txt file
-            //            try? inputs.map{ String(describing: $0) }
-            //                .joined(separator: "\n")
-            //                .write()
+
+            try? inputs.map{ String(describing: $0) }
+                .joined(separator: "\n")
+                .write(fileName:"input.txt")
+            
+            try? filtered.map{ String(describing: $0) }
+                .joined(separator: "\n")
+                .write(fileName:"Filtered.txt")
             
             print("Put finger on camera!")
             //TODO: delegate!
