@@ -46,9 +46,9 @@ class SignalProcessor {
             return
         }
         print(cgImage)
-        var redmean:CGFloat = 0.0;
-        var greenmean:CGFloat = 0.0;
-        var bluemean:CGFloat = 0.0;
+        var redmean:CGFloat = 0.0
+        var greenmean:CGFloat = 0.0
+        var bluemean:CGFloat = 0.0
 
         let rawData:NSData = cgImage.dataProvider!.data!
         let pixels = rawData.bytes.assumingMemoryBound(to: UInt8.self)
@@ -77,7 +77,7 @@ class SignalProcessor {
         print("averageColor \(averageColor)" )
         
         // do a sanity check to see if a finger is placed over the camera
-        if(hsv.1>0.06  && hsv.2>50) {
+//        if(hsv.1>0.06  && hsv.2>50) {
             print("finger on torch")
             validFrameCounter += 1
             inputs.append(hsv.0)
@@ -90,25 +90,35 @@ class SignalProcessor {
             if validFrameCounter > 10 {
                 self.pulseDetector.addNewValue(filtered, atTime: CACurrentMediaTime())
             }
-        } else {
-            //uncomment for writing into txt file
+//        } else {
 
+
+//        }
+    }
+    
+    func stop() {
+        
+        //TODO: delegate!
+        //                DispatchQueue.main.async {
+        //                    self.pulseLabel.text = "Put your finger on camera!"
+        //                }
+        validFrameCounter = 0
+        pulseDetector.reset()
+        
+        if inputs.count > 0 {
             try? inputs.map{ String(describing: $0) }
-                .joined(separator: "\n")
-                .write(fileName:"input.txt")
-            
-            try? filtered.map{ String(describing: $0) }
-                .joined(separator: "\n")
-                .write(fileName:"Filtered.txt")
-            
-            print("Put finger on camera!")
-            //TODO: delegate!
-            //                DispatchQueue.main.async {
-            //                    self.pulseLabel.text = "Put your finger on camera!"
-            //                }
-            validFrameCounter = 0
-            pulseDetector.reset()
+            .joined(separator: "\n")
+            .write(fileName:"input.txt")
         }
+        
+        if filtered.count > 0 {
+            try? filtered.map{ String(describing: $0) }
+            .joined(separator: "\n")
+            .write(fileName:"Filtered.txt")
+        }
+        
+        inputs = []
+        filtered = []
     }
 }
 

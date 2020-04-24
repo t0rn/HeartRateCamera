@@ -11,12 +11,14 @@ import AVFoundation
 import CoreImage
 import Vision
 
+
+
 class FaceViewController: UIViewController {
     
     @IBOutlet weak var faceView: FaceView!
     @IBOutlet weak var previewView: UIView!
     @IBOutlet weak var pulseLabel: UILabel!
-    private let signalProcessor = SignalProcessor()
+//    private let signalProcessor = SignalProcessor()
     
     @IBOutlet weak var colorView: UIView!
     
@@ -31,6 +33,7 @@ class FaceViewController: UIViewController {
         return videoCapture
     }()
     
+    
     var sequenceHandler = VNSequenceRequestHandler()
     
     
@@ -41,19 +44,24 @@ class FaceViewController: UIViewController {
             guard let self = self else {return}
             //print valid frames
             //            let validFrames = min(100, (100*self.hrBuffer.validFrameCounter)/10) //10 is a MIN_FRAMES_FOR_FILTER_TO_SETTLE
-            print("pulse \(self.signalProcessor.pulse)")
-            DispatchQueue.main.async {
-                self.pulseLabel.text = String(describing:self.signalProcessor.pulse)
-                self.colorView.backgroundColor = self.signalProcessor.colors.last ?? UIColor.black
-            }
+//            print("pulse \(self.signalProcessor.pulse)")
+//            DispatchQueue.main.async {
+//                self.pulseLabel.text = String(describing:self.signalProcessor.pulse)
+//                self.colorView.backgroundColor = self.signalProcessor.colors.last ?? UIColor.black
+//            }
         }
 
     }
+    
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
     }
+    
+    
+    
+    
     var faceViewBounds: CGRect?
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
@@ -66,48 +74,52 @@ class FaceViewController: UIViewController {
 //        let transform = transformScale.translatedBy(x: 0, y: -faceImage!.extent.height)
         
         //crop image buffer to ROI (forehead) size
-        let detectFaceRequest = VNDetectFaceLandmarksRequest(completionHandler: detectedFace)
+        let detectFaceRequest = VNDetectFaceLandmarksRequest { (request, error) in
+            self.detectedFace(request: request, error: error, imageBuffer: imageBuffer)
+        }
         do {
             try sequenceHandler.perform([detectFaceRequest],
                                         on: imageBuffer,
                                         orientation: .leftMirrored)
-            if false == faceView.forehead.isEmpty,
-                let topMostPoint = faceView.forehead.point(for: .topMost),
-                let bottomMostPoint = faceView.forehead.point(for: .bottomMost),
-                let rightMostPoint = faceView.forehead.point(for: .rightMost),
-                let leftMostPoint = faceView.forehead.point(for: .leftMost) {
-                let foreheadOrigin = CGPoint(x: leftMostPoint.x,
-                                             y: topMostPoint.y)
-                let foreheadRect = CGRect(x: foreheadOrigin.x,
-                                          y: foreheadOrigin.y,
-                                          width: rightMostPoint.x - leftMostPoint.x,
-                                          height: bottomMostPoint.y - topMostPoint.y)
-                //TODO: make it relative in coordinates
-                let image = CIImage(cvImageBuffer: imageBuffer)
-                let wFactor = image.extent.width / faceViewBounds!.width
-                let hFactor = image.extent.height / faceViewBounds!.height
-                let o = CGPoint(x: foreheadOrigin.x * wFactor,
-                                y: foreheadOrigin.y * hFactor)
-                let size = CGSize(width: foreheadRect.width * wFactor,
-                                  height: foreheadRect.height * hFactor)
-                
-                signalProcessor.handle(imageBuffer: imageBuffer, cropRect: CGRect(origin: o, size: size))
-            }
         } catch {
             print(error.localizedDescription)
             return
         }
     }
 
-    func detectedFace(request: VNRequest, error: Error?) {
+    func detectedFace(request: VNRequest, error: Error?, imageBuffer:CVImageBuffer) {
         guard
             let results = request.results as? [VNFaceObservation],
             let result = results.first
             else {
                 faceView.clear()
+//                signalProcessor.stop()
                 return
         }
         updateFaceView(for: result)
+        //define rect of ROI (forehead) from imagebuffer
+        if false == faceView.forehead.isEmpty,
+            let topMostPoint = faceView.forehead.point(for: .topMost),
+            let bottomMostPoint = faceView.forehead.point(for: .bottomMost),
+            let rightMostPoint = faceView.forehead.point(for: .rightMost),
+            let leftMostPoint = faceView.forehead.point(for: .leftMost) {
+            let foreheadOrigin = CGPoint(x: leftMostPoint.x,
+                                         y: topMostPoint.y)
+            let foreheadRect = CGRect(x: foreheadOrigin.x,
+                                      y: foreheadOrigin.y,
+                                      width: rightMostPoint.x - leftMostPoint.x,
+                                      height: bottomMostPoint.y - topMostPoint.y)
+            //TODO: make it relative in coordinates
+            let image = CIImage(cvImageBuffer: imageBuffer)
+            let wFactor = image.extent.width / faceViewBounds!.width
+            let hFactor = image.extent.height / faceViewBounds!.height
+            let o = CGPoint(x: foreheadOrigin.x * wFactor,
+                            y: foreheadOrigin.y * hFactor)
+            let size = CGSize(width: foreheadRect.width * wFactor,
+                              height: foreheadRect.height * hFactor)
+            
+//            signalProcessor.handle(imageBuffer: imageBuffer, cropRect: CGRect(origin: o, size: size))
+        }
     }
     
     func updateFaceView(for face: VNFaceObservation) {

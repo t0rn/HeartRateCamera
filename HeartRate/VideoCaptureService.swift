@@ -14,28 +14,41 @@ class VideoCaptureService: NSObject, AVCaptureVideoDataOutputSampleBufferDelegat
     enum CameraType : Int {
         case back
         case front
+        case unspecified
         
         func captureDevice() -> AVCaptureDevice {
-            switch self {
-            case .front:
-                let devices = AVCaptureDevice.DiscoverySession(deviceTypes: [.builtInWideAngleCamera], mediaType: .video, position: .front).devices
-                print("devices:\(devices)")
-                for device in devices where device.position == .front {
-                    return device
+            let devices = AVCaptureDevice.DiscoverySession(deviceTypes: [.builtInWideAngleCamera], mediaType: .video, position: .back).devices
+            print("capture devices:\(devices)")
+            guard devices.count > 0 else {
+                guard let defaultDevice = AVCaptureDevice.default(for: .video) else {
+                    fatalError("Can't get a video device for capturing")
                 }
-            default:
-                break
+                return defaultDevice
             }
-            return AVCaptureDevice.default(for: .video)!
+            return devices.first!
+        }
+        
+        var captureDevicePosition: AVCaptureDevice.Position {
+            switch self {
+            case .back: return .back
+            case .front: return .front
+            case .unspecified: return .unspecified
+            }
         }
     }
 
+    
     struct VideoSpec {
         var fps: Int32?
         var size: CGSize?
     }
     
-    typealias ImageBufferHandler = ((_ imageBuffer: CMSampleBuffer) -> ())
+    
+    
+    var captureAuthorizationStatus: AVAuthorizationStatus {
+        //closed caption will crash
+        return AVCaptureDevice.authorizationStatus(for: .audio)
+    }
     
     private let captureSession = AVCaptureSession()
     private var videoDevice: AVCaptureDevice!
@@ -43,54 +56,78 @@ class VideoCaptureService: NSObject, AVCaptureVideoDataOutputSampleBufferDelegat
     private var audioConnection: AVCaptureConnection!
     private(set) var previewLayer: AVCaptureVideoPreviewLayer?
     
+    typealias ImageBufferHandler = ((_ imageBuffer: CMSampleBuffer) -> ())
     var imageBufferHandler: ImageBufferHandler?
     
     init(cameraType: CameraType, preferredSpec: VideoSpec?, previewContainer: CALayer?) {
         super.init()
-        
-        videoDevice = cameraType.captureDevice()
-        
-        // setup video format
-        do {
-//            captureSession.sessionPreset = AVCaptureSession.Preset.inputPriority
-            captureSession.sessionPreset = .low
-            
-            if let preferredSpec = preferredSpec {
-                // update the format with a preferred fps
-                videoDevice.updateFormatWithPreferredVideoSpec(preferredSpec: preferredSpec)
+        #if targetEnvironment(macCatalyst)
+        //TODO:use UIImagePickerController
+        //see https://developer.apple.com/documentation/avfoundation/cameras_and_media_capture
+        #else
+        switch captureAuthorizationStatus {
+        case .authorized:
+            setupCaptureSession(for: cameraType, preferredSpec: preferredSpec, previewContainer: previewContainer)
+        case .notDetermined:
+            AVCaptureDevice.requestAccess(for: .video) { granted in
+                if granted {
+                    self.setupCaptureSession(for: cameraType, preferredSpec: preferredSpec, previewContainer: previewContainer)
+                }
             }
+        case .denied, .restricted:
+            // show alert
+            break
+        @unknown default: break
         }
-        
-        // setup video device input
-        do {
-            let videoDeviceInput: AVCaptureDeviceInput
-            do {
-                videoDeviceInput = try AVCaptureDeviceInput(device: videoDevice)
-                let device = videoDeviceInput.device
-                device.toggleTorch(on: true)
-            }
-            catch {
-                fatalError("Could not create AVCaptureDeviceInput instance with error: \(error).")
-            }
-            guard captureSession.canAddInput(videoDeviceInput) else {
-                fatalError()
-            }
-            captureSession.addInput(videoDeviceInput)
-        }catch {
-            fatalError(error.localizedDescription)
-        }
-        
-        // setup preview layer
+        #endif
+    }
+    
+    func setupCaptureSession(for cameraType:CameraType, preferredSpec:VideoSpec?, previewContainer: CALayer?) {
+        let device = cameraType.captureDevice()
+        videoDevice = device
+        setupVideoFormat(with: preferredSpec)
+        setupDeviceInput()
         if let previewContainer = previewContainer {
-            let previewLayer = AVCaptureVideoPreviewLayer(session: captureSession)
-            previewLayer.frame = previewContainer.bounds
-            previewLayer.contentsGravity = CALayerContentsGravity.resizeAspectFill
-            previewLayer.videoGravity = AVLayerVideoGravity.resizeAspectFill
-            previewContainer.insertSublayer(previewLayer, at: 0)
-            self.previewLayer = previewLayer
+            setup(previewContainer:previewContainer)
         }
-        
-        // setup video output
+        setupViewOuput()
+    }
+    
+
+    
+    func setupVideoFormat(with preferredSpec:VideoSpec?) {
+        captureSession.sessionPreset = .low
+        if let preferredSpec = preferredSpec {
+            videoDevice.updateFormatWithPreferredVideoSpec(preferredSpec: preferredSpec)
+        }
+    }
+    
+    func setupDeviceInput() {
+        let videoDeviceInput: AVCaptureDeviceInput
+        do {
+            videoDeviceInput = try AVCaptureDeviceInput(device: videoDevice)
+            let device = videoDeviceInput.device
+            device.toggleTorch(on: true)
+        }
+        catch {
+            fatalError("Could not create AVCaptureDeviceInput instance with error: \(error).")
+        }
+        guard captureSession.canAddInput(videoDeviceInput) else {
+            fatalError()
+        }
+        captureSession.addInput(videoDeviceInput)
+    }
+    
+    func setup(previewContainer: CALayer) {
+        let previewLayer = AVCaptureVideoPreviewLayer(session: captureSession)
+        previewLayer.frame = previewContainer.bounds
+        previewLayer.contentsGravity = CALayerContentsGravity.resizeAspectFill
+        previewLayer.videoGravity = AVLayerVideoGravity.resizeAspectFill
+        previewContainer.insertSublayer(previewLayer, at: 0)
+        self.previewLayer = previewLayer
+    }
+    
+    func setupViewOuput() {
         let videoDataOutput = AVCaptureVideoDataOutput()
         videoDataOutput.videoSettings = [kCVPixelBufferPixelFormatTypeKey : NSNumber(value: kCVPixelFormatType_32BGRA)] as [String : Any]
         // [kCVPixelBufferPixelFormatTypeKey as AnyHashable as! String: NSNumber(value: kCVPixelFormatType_32BGRA)]
@@ -106,9 +143,7 @@ class VideoCaptureService: NSObject, AVCaptureVideoDataOutputSampleBufferDelegat
     }
     
     func startCapture() {
-        print("\(self.classForCoder)/" + #function)
         if captureSession.isRunning {
-            print("already running")
             return
         }
         captureSession.startRunning()
