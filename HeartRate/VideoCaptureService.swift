@@ -17,7 +17,7 @@ class VideoCaptureService: NSObject, AVCaptureVideoDataOutputSampleBufferDelegat
         case unspecified
         
         func captureDevice() -> AVCaptureDevice {
-            let devices = AVCaptureDevice.DiscoverySession(deviceTypes: [.builtInWideAngleCamera], mediaType: .video, position: .back).devices
+            let devices = AVCaptureDevice.DiscoverySession(deviceTypes: [.builtInWideAngleCamera], mediaType: .video, position: captureDevicePosition).devices
             print("capture devices:\(devices)")
             guard devices.count > 0 else {
                 guard let defaultDevice = AVCaptureDevice.default(for: .video) else {
@@ -180,6 +180,8 @@ class VideoCaptureService: NSObject, AVCaptureVideoDataOutputSampleBufferDelegat
         }
     }
 }
+
+
 extension AVCaptureDevice {
     func toggleTorch(on:Bool) {
         guard hasTorch, isTorchAvailable else {

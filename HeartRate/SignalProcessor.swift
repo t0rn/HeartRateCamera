@@ -12,8 +12,12 @@ class SignalProcessor {
     private let pulseDetector = PulseDetector()
     private(set) var validFrameCounter = 0
     private var hueFilter = Filter()
-    private var inputs: [CGFloat] = []
-    private var filtered: [Float] = []
+    
+    private var red = [Int]()
+    private var green = [Int]()
+    private var blue = [Int]()
+    
+//    private var filtered: [Float] = []
     private(set) var colors: [UIColor] = []
     
     private let ciContext = CIContext(options: [.workingColorSpace: kCFNull])
@@ -41,16 +45,16 @@ class SignalProcessor {
                 print("Cant create averageColor!")
                 return
         }
-        guard let cgImage = averageColor.cgImage() else {
+        guard let averateColorCGImage = averageColor.cgImage() else {
             print("Cant create cgImage!")
             return
         }
-        print(cgImage)
+        
         var redmean:CGFloat = 0.0
         var greenmean:CGFloat = 0.0
         var bluemean:CGFloat = 0.0
 
-        let rawData:NSData = cgImage.dataProvider!.data!
+        let rawData:NSData = averateColorCGImage.dataProvider!.data!
         let pixels = rawData.bytes.assumingMemoryBound(to: UInt8.self)
         let bytes = UnsafeBufferPointer<UInt8>(start:pixels, count:rawData.length)
         var BGRA_index = 0
@@ -69,30 +73,27 @@ class SignalProcessor {
             }
             BGRA_index += 1
         }
+        red.append(Int(redmean))
+        green.append(Int(greenmean))
+        blue.append(Int(bluemean))
+        
         let hsv = rgb2hsv((red:redmean, green: greenmean,blue: bluemean,alpha: 1.0))
         print("hsv: \(hsv)")
 
 ////        let color = UIColor(red: redmean/255.0, green: greenmean/255.0, blue: bluemean/255.0, alpha: 1.0)
         colors.append(averageColor)
         print("averageColor \(averageColor)" )
-        
-        // do a sanity check to see if a finger is placed over the camera
-//        if(hsv.1>0.06  && hsv.2>50) {
-            print("finger on torch")
-            validFrameCounter += 1
-            inputs.append(hsv.0)
-            // filter the hue value - the filter is a simple band pass filter that removes any DC component
-            //and any high frequency noise
-            let filtered = hueFilter.processValue(Float(hsv.0))
-            self.filtered.append(filtered)
-            // have we collected enough frames for the filter to settle?
-            //TODO: use constant MIN_FRAMES_FOR_FILTER_TO_SETTLE for exameple
-            if validFrameCounter > 10 {
-                self.pulseDetector.addNewValue(filtered, atTime: CACurrentMediaTime())
-            }
-//        } else {
+        validFrameCounter += 1
 
-
+        //        inputs.append(hsv.0)
+        // filter the hue value - the filter is a simple band pass filter that removes any DC component
+        //and any high frequency noise
+//        let filtered = hueFilter.processValue(Float(hsv.0))
+//        self.filtered.append(filtered)
+        // have we collected enough frames for the filter to settle?
+        //TODO: use constant MIN_FRAMES_FOR_FILTER_TO_SETTLE for exameple
+//        if validFrameCounter > 10 {
+//            self.pulseDetector.addNewValue(filtered, atTime: CACurrentMediaTime())
 //        }
     }
     
@@ -105,20 +106,25 @@ class SignalProcessor {
         validFrameCounter = 0
         pulseDetector.reset()
         
-        if inputs.count > 0 {
-            try? inputs.map{ String(describing: $0) }
+        if red.count > 0 {
+            try? red.map{ String(describing: $0) }
             .joined(separator: "\n")
-            .write(fileName:"input.txt")
+            .write(fileName:"red.txt")
         }
         
-        if filtered.count > 0 {
-            try? filtered.map{ String(describing: $0) }
+        if green.count > 0 {
+            try? green.map{ String(describing: $0) }
             .joined(separator: "\n")
-            .write(fileName:"Filtered.txt")
+            .write(fileName:"green.txt")
         }
         
-        inputs = []
-        filtered = []
+        if blue.count > 0 {
+            try? green.map{ String(describing: $0) }
+            .joined(separator: "\n")
+            .write(fileName:"blue.txt")
+        }
+        
+        red = []; green = []; blue = []
     }
 }
 

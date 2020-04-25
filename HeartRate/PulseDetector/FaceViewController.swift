@@ -11,14 +11,12 @@ import AVFoundation
 import CoreImage
 import Vision
 
-
-
 class FaceViewController: UIViewController {
     
     @IBOutlet weak var faceView: FaceView!
     @IBOutlet weak var previewView: UIView!
     @IBOutlet weak var pulseLabel: UILabel!
-//    private let signalProcessor = SignalProcessor()
+    private let signalProcessor = SignalProcessor()
     
     @IBOutlet weak var colorView: UIView!
     
@@ -33,7 +31,6 @@ class FaceViewController: UIViewController {
         return videoCapture
     }()
     
-    
     var sequenceHandler = VNSequenceRequestHandler()
     
     
@@ -43,30 +40,27 @@ class FaceViewController: UIViewController {
         Timer.scheduledTimer(withTimeInterval: 0.5, repeats: true) { [weak self] (timer) in
             guard let self = self else {return}
             //print valid frames
-            //            let validFrames = min(100, (100*self.hrBuffer.validFrameCounter)/10) //10 is a MIN_FRAMES_FOR_FILTER_TO_SETTLE
-//            print("pulse \(self.signalProcessor.pulse)")
-//            DispatchQueue.main.async {
-//                self.pulseLabel.text = String(describing:self.signalProcessor.pulse)
-//                self.colorView.backgroundColor = self.signalProcessor.colors.last ?? UIColor.black
-//            }
+//            let validFrames = min(100, (100*self.hrBuffer.validFrameCounter)/10) //10 is a MIN_FRAMES_FOR_FILTER_TO_SETTLE
+            print("pulse \(self.signalProcessor.pulse)")
+            DispatchQueue.main.async {
+                self.pulseLabel.text = String(describing:self.signalProcessor.pulse)
+                self.colorView.backgroundColor = self.signalProcessor.colors.last ?? UIColor.black
+            }
         }
 
     }
-    
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
     }
     
-    
-    
-    
     var faceViewBounds: CGRect?
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
         faceViewBounds = faceView.bounds
     }
+    
     func handle(buffer:CMSampleBuffer) {
         guard let imageBuffer = CMSampleBufferGetImageBuffer(buffer) else {return}
         //see https://swiftludus.org/face-detection-with-core-image/ for
@@ -93,7 +87,7 @@ class FaceViewController: UIViewController {
             let result = results.first
             else {
                 faceView.clear()
-//                signalProcessor.stop()
+                signalProcessor.stop()
                 return
         }
         updateFaceView(for: result)
@@ -118,7 +112,7 @@ class FaceViewController: UIViewController {
             let size = CGSize(width: foreheadRect.width * wFactor,
                               height: foreheadRect.height * hFactor)
             
-//            signalProcessor.handle(imageBuffer: imageBuffer, cropRect: CGRect(origin: o, size: size))
+            signalProcessor.handle(imageBuffer: imageBuffer, cropRect: CGRect(origin: o, size: size))
         }
     }
     
