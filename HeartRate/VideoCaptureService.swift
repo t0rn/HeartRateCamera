@@ -83,8 +83,7 @@ class VideoCaptureService: NSObject, AVCaptureVideoDataOutputSampleBufferDelegat
     }
     
     func setupCaptureSession(for cameraType:CameraType, preferredSpec:VideoSpec?, previewContainer: CALayer?) {
-        let device = cameraType.captureDevice()
-        videoDevice = device
+        videoDevice = cameraType.captureDevice()
         setupVideoFormat(with: preferredSpec)
         setupDeviceInput()
         if let previewContainer = previewContainer {
@@ -119,12 +118,14 @@ class VideoCaptureService: NSObject, AVCaptureVideoDataOutputSampleBufferDelegat
     }
     
     func setup(previewContainer: CALayer) {
-        let previewLayer = AVCaptureVideoPreviewLayer(session: captureSession)
-        previewLayer.frame = previewContainer.bounds
-        previewLayer.contentsGravity = CALayerContentsGravity.resizeAspectFill
-        previewLayer.videoGravity = AVLayerVideoGravity.resizeAspectFill
-        previewContainer.insertSublayer(previewLayer, at: 0)
-        self.previewLayer = previewLayer
+        DispatchQueue.main.async {
+            let previewLayer = AVCaptureVideoPreviewLayer(session: self.captureSession)
+            previewLayer.frame = previewContainer.bounds
+            previewLayer.contentsGravity = CALayerContentsGravity.resizeAspectFill
+            previewLayer.videoGravity = AVLayerVideoGravity.resizeAspectFill
+            previewContainer.insertSublayer(previewLayer, at: 0)
+            self.previewLayer = previewLayer
+        }
     }
     
     func setupViewOuput() {
@@ -138,7 +139,6 @@ class VideoCaptureService: NSObject, AVCaptureVideoDataOutputSampleBufferDelegat
             fatalError()
         }
         captureSession.addOutput(videoDataOutput)
-        
         videoConnection = videoDataOutput.connection(with: .video)
     }
     
