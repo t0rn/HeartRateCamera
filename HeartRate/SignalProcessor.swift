@@ -119,7 +119,7 @@ class SignalProcessor {
         }
         
         if blue.count > 0 {
-            try? green.map{ String(describing: $0) }
+            try? blue.map{ String(describing: $0) }
             .joined(separator: "\n")
             .write(fileName:"blue.txt")
         }
