@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import ClibICA
 
 class SignalProcessor {
     private let pulseDetector = PulseDetector()
@@ -96,7 +97,7 @@ class SignalProcessor {
 //            self.pulseDetector.addNewValue(filtered, atTime: CACurrentMediaTime())
 //        }
     }
-    
+
     func stop() {
         
         //TODO: delegate!

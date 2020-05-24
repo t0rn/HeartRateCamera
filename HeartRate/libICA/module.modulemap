@@ -1,0 +1,4 @@
+module ClibICA {
+  export *
+  header "libICA.h"
+}

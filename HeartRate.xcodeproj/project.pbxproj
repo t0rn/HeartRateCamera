@@ -22,7 +22,25 @@
 		339B128B222BD16700DBA135 /* Filter.m in Sources */ = {isa = PBXBuildFile; fileRef = 339B1289222BD16700DBA135 /* Filter.m */; };
 		339B128F222BD2E300DBA135 /* PulseDetector.mm in Sources */ = {isa = PBXBuildFile; fileRef = 339B128E222BD2E300DBA135 /* PulseDetector.mm */; };
 		33AC596722E3A0D1004EA38E /* CustomStringConvertible+WriteToFIle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 33AC596622E3A0D1004EA38E /* CustomStringConvertible+WriteToFIle.swift */; };
+		33B0DE772470028A0037C0C9 /* libICA.c in Sources */ = {isa = PBXBuildFile; fileRef = 33B0DE6D2470028A0037C0C9 /* libICA.c */; };
+		33B0DE782470028A0037C0C9 /* svdcmp.c in Sources */ = {isa = PBXBuildFile; fileRef = 33B0DE6E2470028A0037C0C9 /* svdcmp.c */; };
+		33B0DE7A2470028A0037C0C9 /* fastICA.c in Sources */ = {isa = PBXBuildFile; fileRef = 33B0DE702470028A0037C0C9 /* fastICA.c */; };
+		33B0DE7B2470028A0037C0C9 /* README in Resources */ = {isa = PBXBuildFile; fileRef = 33B0DE722470028A0037C0C9 /* README */; };
+		33B0DE7C2470028A0037C0C9 /* matrix.c in Sources */ = {isa = PBXBuildFile; fileRef = 33B0DE752470028A0037C0C9 /* matrix.c */; };
 /* End PBXBuildFile section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		33B0DE8F2471B0B00037C0C9 /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		330D723F23C7AE99004FA98F /* FaceViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = FaceViewController.swift; path = PulseDetector/FaceViewController.swift; sourceTree = "<group>"; };
@@ -45,6 +63,15 @@
 		339B128D222BD2E300DBA135 /* PulseDetector.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PulseDetector.h; sourceTree = "<group>"; };
 		339B128E222BD2E300DBA135 /* PulseDetector.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = PulseDetector.mm; sourceTree = "<group>"; };
 		33AC596622E3A0D1004EA38E /* CustomStringConvertible+WriteToFIle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CustomStringConvertible+WriteToFIle.swift"; sourceTree = "<group>"; };
+		33B0DE6D2470028A0037C0C9 /* libICA.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = libICA.c; sourceTree = "<group>"; };
+		33B0DE6E2470028A0037C0C9 /* svdcmp.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = svdcmp.c; sourceTree = "<group>"; };
+		33B0DE702470028A0037C0C9 /* fastICA.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = fastICA.c; sourceTree = "<group>"; };
+		33B0DE712470028A0037C0C9 /* matrix.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = matrix.h; sourceTree = "<group>"; };
+		33B0DE722470028A0037C0C9 /* README */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = README; sourceTree = "<group>"; };
+		33B0DE732470028A0037C0C9 /* libICA.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = libICA.h; sourceTree = "<group>"; };
+		33B0DE742470028A0037C0C9 /* svdcmp.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = svdcmp.h; sourceTree = "<group>"; };
+		33B0DE752470028A0037C0C9 /* matrix.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = matrix.c; sourceTree = "<group>"; };
+		33B0DE7D247003850037C0C9 /* module.modulemap */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = "sourcecode.module-map"; path = module.modulemap; sourceTree = "<group>"; };
 		33EB0F8F244243490097CC17 /* HeartRate.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = HeartRate.entitlements; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -79,6 +106,7 @@
 		334CD12E21CE64B3002DF0F5 /* HeartRate */ = {
 			isa = PBXGroup;
 			children = (
+				33B0DE692470028A0037C0C9 /* libICA */,
 				33EB0F8F244243490097CC17 /* HeartRate.entitlements */,
 				334CD14521CE733E002DF0F5 /* AVCaptureDevice+Extensions.swift */,
 				334CD14321CE72E7002DF0F5 /* VideoCaptureService.swift */,
@@ -118,6 +146,22 @@
 			path = PulseDetector;
 			sourceTree = "<group>";
 		};
+		33B0DE692470028A0037C0C9 /* libICA */ = {
+			isa = PBXGroup;
+			children = (
+				33B0DE7D247003850037C0C9 /* module.modulemap */,
+				33B0DE6D2470028A0037C0C9 /* libICA.c */,
+				33B0DE6E2470028A0037C0C9 /* svdcmp.c */,
+				33B0DE702470028A0037C0C9 /* fastICA.c */,
+				33B0DE712470028A0037C0C9 /* matrix.h */,
+				33B0DE722470028A0037C0C9 /* README */,
+				33B0DE732470028A0037C0C9 /* libICA.h */,
+				33B0DE742470028A0037C0C9 /* svdcmp.h */,
+				33B0DE752470028A0037C0C9 /* matrix.c */,
+			);
+			path = libICA;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -128,6 +172,7 @@
 				334CD12821CE64B3002DF0F5 /* Sources */,
 				334CD12921CE64B3002DF0F5 /* Frameworks */,
 				334CD12A21CE64B3002DF0F5 /* Resources */,
+				33B0DE8F2471B0B00037C0C9 /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
@@ -177,6 +222,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				33B0DE7B2470028A0037C0C9 /* README in Resources */,
 				334CD13A21CE64B6002DF0F5 /* LaunchScreen.storyboard in Resources */,
 				334CD13721CE64B6002DF0F5 /* Assets.xcassets in Resources */,
 				334CD13521CE64B3002DF0F5 /* Main.storyboard in Resources */,
@@ -194,13 +240,17 @@
 				339B128B222BD16700DBA135 /* Filter.m in Sources */,
 				333962B523CB406D0051C6AC /* SignalProcessor.swift in Sources */,
 				334CD13221CE64B3002DF0F5 /* ViewController.swift in Sources */,
+				33B0DE7A2470028A0037C0C9 /* fastICA.c in Sources */,
 				330D724023C7AE99004FA98F /* FaceViewController.swift in Sources */,
 				339B128F222BD2E300DBA135 /* PulseDetector.mm in Sources */,
+				33B0DE772470028A0037C0C9 /* libICA.c in Sources */,
+				33B0DE7C2470028A0037C0C9 /* matrix.c in Sources */,
 				33AC596722E3A0D1004EA38E /* CustomStringConvertible+WriteToFIle.swift in Sources */,
 				3315E88121DE146500859B19 /* ColorUtils.swift in Sources */,
 				334CD13021CE64B3002DF0F5 /* AppDelegate.swift in Sources */,
 				334CD14621CE733E002DF0F5 /* AVCaptureDevice+Extensions.swift in Sources */,
 				330D724423C7BAC2004FA98F /* CoreGraphicsExtensions.swift in Sources */,
+				33B0DE782470028A0037C0C9 /* svdcmp.c in Sources */,
 				330D724223C7B2F9004FA98F /* FaceView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -361,6 +411,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.alexeyivanov.HeartRate;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTS_MACCATALYST = YES;
+				SWIFT_INCLUDE_PATHS = "${SRCROOT}/HeartRate/libICA";
 				SWIFT_OBJC_BRIDGING_HEADER = "HeartRate/HeartRate-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 4.2;
@@ -386,6 +437,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.alexeyivanov.HeartRate;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTS_MACCATALYST = YES;
+				SWIFT_INCLUDE_PATHS = "${SRCROOT}/HeartRate/libICA";
 				SWIFT_OBJC_BRIDGING_HEADER = "HeartRate/HeartRate-Bridging-Header.h";
 				SWIFT_VERSION = 4.2;
 				TARGETED_DEVICE_FAMILY = "1,2";
