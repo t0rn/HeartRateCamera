@@ -96,8 +96,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         //init S
         let Srows = UnsafeMutablePointer<Double>.allocate(capacity: columns)
         Srows.initialize(repeating: 0.0, count: columns)
-        let S = UnsafeMutablePointer<UnsafeMutablePointer<Double>?>.allocate(capacity:  components)
-        S.initialize(repeating: Arows, count: components)
+        let S = UnsafeMutablePointer<UnsafeMutablePointer<Double>?>.allocate(capacity:  rows)
+        S.initialize(repeating: Arows, count: rows)
         
         defer {
             //deinit X
@@ -128,7 +128,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         fastICA(X,
                 Int32(rows),
                 Int32(columns),
-                3,
+                Int32(components),
                 K,
                 W,
                 A,
