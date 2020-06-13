@@ -19,6 +19,9 @@
 		334CD13A21CE64B6002DF0F5 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 334CD13821CE64B6002DF0F5 /* LaunchScreen.storyboard */; };
 		334CD14421CE72E7002DF0F5 /* VideoCaptureService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 334CD14321CE72E7002DF0F5 /* VideoCaptureService.swift */; };
 		334CD14621CE733E002DF0F5 /* AVCaptureDevice+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 334CD14521CE733E002DF0F5 /* AVCaptureDevice+Extensions.swift */; };
+		3381AA2C249566A700195FAF /* Matrix.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3381AA2B249566A700195FAF /* Matrix.swift */; };
+		3381AA2E249566AF00195FAF /* HRDetector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3381AA2D249566AE00195FAF /* HRDetector.swift */; };
+		3381AA302495681000195FAF /* FFT.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3381AA2F2495681000195FAF /* FFT.swift */; };
 		339B128B222BD16700DBA135 /* Filter.m in Sources */ = {isa = PBXBuildFile; fileRef = 339B1289222BD16700DBA135 /* Filter.m */; };
 		339B128F222BD2E300DBA135 /* PulseDetector.mm in Sources */ = {isa = PBXBuildFile; fileRef = 339B128E222BD2E300DBA135 /* PulseDetector.mm */; };
 		33AC596722E3A0D1004EA38E /* CustomStringConvertible+WriteToFIle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 33AC596622E3A0D1004EA38E /* CustomStringConvertible+WriteToFIle.swift */; };
@@ -57,6 +60,9 @@
 		334CD13B21CE64B6002DF0F5 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		334CD14321CE72E7002DF0F5 /* VideoCaptureService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoCaptureService.swift; sourceTree = "<group>"; };
 		334CD14521CE733E002DF0F5 /* AVCaptureDevice+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AVCaptureDevice+Extensions.swift"; sourceTree = "<group>"; };
+		3381AA2B249566A700195FAF /* Matrix.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Matrix.swift; sourceTree = "<group>"; };
+		3381AA2D249566AE00195FAF /* HRDetector.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HRDetector.swift; sourceTree = "<group>"; };
+		3381AA2F2495681000195FAF /* FFT.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FFT.swift; sourceTree = "<group>"; };
 		339B1288222BD16500DBA135 /* HeartRate-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "HeartRate-Bridging-Header.h"; sourceTree = "<group>"; };
 		339B1289222BD16700DBA135 /* Filter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Filter.m; sourceTree = "<group>"; };
 		339B128A222BD16700DBA135 /* Filter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Filter.h; sourceTree = "<group>"; };
@@ -106,6 +112,9 @@
 		334CD12E21CE64B3002DF0F5 /* HeartRate */ = {
 			isa = PBXGroup;
 			children = (
+				3381AA2F2495681000195FAF /* FFT.swift */,
+				3381AA2D249566AE00195FAF /* HRDetector.swift */,
+				3381AA2B249566A700195FAF /* Matrix.swift */,
 				33B0DE692470028A0037C0C9 /* libICA */,
 				33EB0F8F244243490097CC17 /* HeartRate.entitlements */,
 				334CD14521CE733E002DF0F5 /* AVCaptureDevice+Extensions.swift */,
@@ -240,8 +249,10 @@
 				339B128B222BD16700DBA135 /* Filter.m in Sources */,
 				333962B523CB406D0051C6AC /* SignalProcessor.swift in Sources */,
 				334CD13221CE64B3002DF0F5 /* ViewController.swift in Sources */,
+				3381AA2C249566A700195FAF /* Matrix.swift in Sources */,
 				33B0DE7A2470028A0037C0C9 /* fastICA.c in Sources */,
 				330D724023C7AE99004FA98F /* FaceViewController.swift in Sources */,
+				3381AA302495681000195FAF /* FFT.swift in Sources */,
 				339B128F222BD2E300DBA135 /* PulseDetector.mm in Sources */,
 				33B0DE772470028A0037C0C9 /* libICA.c in Sources */,
 				33B0DE7C2470028A0037C0C9 /* matrix.c in Sources */,
@@ -252,6 +263,7 @@
 				330D724423C7BAC2004FA98F /* CoreGraphicsExtensions.swift in Sources */,
 				33B0DE782470028A0037C0C9 /* svdcmp.c in Sources */,
 				330D724223C7B2F9004FA98F /* FaceView.swift in Sources */,
+				3381AA2E249566AF00195FAF /* HRDetector.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -403,7 +415,7 @@
 				DEVELOPMENT_TEAM = 657GC2CXLB;
 				"ENABLE_HARDENED_RUNTIME[sdk=macosx*]" = YES;
 				INFOPLIST_FILE = HeartRate/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -429,7 +441,7 @@
 				DEVELOPMENT_TEAM = 657GC2CXLB;
 				"ENABLE_HARDENED_RUNTIME[sdk=macosx*]" = YES;
 				INFOPLIST_FILE = HeartRate/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",

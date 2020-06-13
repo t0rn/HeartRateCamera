@@ -246,3 +246,16 @@ void fastICA(mat X, int rows, int cols, int compc, mat K, mat W, mat A, mat S)
 	vect_delete(scale);
 	vect_delete(d);
 }
+
+double** myFastICA(double** X, int rows, int cols, int compc)
+{
+    
+    double** W = mat_create(compc, compc);
+    double** A = mat_create(compc, compc);
+    double** K = mat_create(cols, compc);
+    double** S = mat_create(rows, cols);
+    
+    // ICA computation
+    fastICA(X, rows, cols, compc, K, W, A, S);    
+    return S;
+}

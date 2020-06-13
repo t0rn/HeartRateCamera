@@ -13,4 +13,5 @@
 
 void fastICA(double** X, int rows, int cols, int compc, double** K, double** W, double** A, double** S);
 
+double** myFastICA(double** X, int rows, int cols, int compc);
 #endif /*LIBICA_H_*/
