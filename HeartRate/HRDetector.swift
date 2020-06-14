@@ -11,7 +11,7 @@ import Accelerate
 
 class HRDetector {
     let samplingRate: Float = 10.0
-    let windowSize = 256
+    let windowSize = 128
     let signal: [Float]
     
     private(set) var pageNumber: Int = 0
@@ -29,30 +29,10 @@ class HRDetector {
         fft = FFT(length: windowSize)
     }
     
-    func calcHR() -> [Float] { //TODO: bufferize and return average
-        let totalPages = signal.count/windowSize
+    func calcHR() -> Float { //TODO: bufferize and return average
         let seconds = Float(window.count) / samplingRate
         let fps = Float(window.count) / seconds
-        
-        let hrValues = (0...totalPages)
-            .map{_ in  fft.caltHR(signal: getSignal(), fps: fps) }
-                    
-        return hrValues
+        let hrValue = fft.caltHR(signal: signal, fps: fps)
+        return hrValue
     }
-    
-    private func getSignal() -> [Float] {
-        let start = pageNumber * windowSize
-        let end = (pageNumber + 1) * windowSize
-        
-        let page = Array(signal[start ..< end])
-        
-        pageNumber += 1
-        
-        if (pageNumber + 1) * windowSize >= signal.count {
-            pageNumber = 0
-        }
-        
-        return page
-    }
-    
 }

@@ -9,30 +9,22 @@
 import UIKit
 import ClibICA
 
+
 class SignalProcessor {
-    private let pulseDetector = PulseDetector()
-    private(set) var validFrameCounter = 0
-    private var hueFilter = Filter()
+    struct ColorSignal {
+        let red: Float
+        let green: Float
+        let blue: Float
+    }
     
-    private var red = [Int]()
-    private var green = [Int]()
-    private var blue = [Int]()
-    
-//    private var filtered: [Float] = []
+    private(set) var signal: [ColorSignal] = []
+    private(set) var buffer = RingBuffer<ColorSignal>(count: 128) //buffer size
     private(set) var colors: [UIColor] = []
     
+    
     private let ciContext = CIContext(options: [.workingColorSpace: kCFNull])
-    
-    var pulse:Float {
-        return 60.0/average
-    }
-    
-    var average:Float {
-        return pulseDetector.getAverage()
-    }
-    
+            
     func handle(imageBuffer: CVImageBuffer, cropRect:CGRect? = nil) {
-
         guard let inputCGImage = CIImage(cvImageBuffer: imageBuffer).cgImage() else {return}
         var inputImage = CIImage(cgImage: inputCGImage)
         
@@ -74,58 +66,104 @@ class SignalProcessor {
             }
             BGRA_index += 1
         }
-        red.append(Int(redmean))
-        green.append(Int(greenmean))
-        blue.append(Int(bluemean))
-        
-        let hsv = rgb2hsv((red:redmean, green: greenmean,blue: bluemean,alpha: 1.0))
-        print("hsv: \(hsv)")
-
+        let colorSignal = ColorSignal(red: Float(redmean),
+                                      green: Float(greenmean),
+                                      blue: Float(bluemean))
+        signal.append(colorSignal)
+        buffer.write(colorSignal)
+        print(buffer.isFull)
+        if buffer.isFull {
+            //read all values and pass to hr detector
+            calcICA(buffer.readAll())
+        }
 ////        let color = UIColor(red: redmean/255.0, green: greenmean/255.0, blue: bluemean/255.0, alpha: 1.0)
         colors.append(averageColor)
-        print("averageColor \(averageColor)" )
-        validFrameCounter += 1
-
-        //        inputs.append(hsv.0)
-        // filter the hue value - the filter is a simple band pass filter that removes any DC component
-        //and any high frequency noise
-//        let filtered = hueFilter.processValue(Float(hsv.0))
-//        self.filtered.append(filtered)
-        // have we collected enough frames for the filter to settle?
-        //TODO: use constant MIN_FRAMES_FOR_FILTER_TO_SETTLE for exameple
-//        if validFrameCounter > 10 {
-//            self.pulseDetector.addNewValue(filtered, atTime: CACurrentMediaTime())
-//        }
+        
     }
-
+    
+    //TODO: float vs double
+    func calcICA(_ input: [ColorSignal]) {
+        let signal = input.map{ colorSignal -> [Double] in
+            [Double(colorSignal.red), Double(colorSignal.green), Double(colorSignal.blue)]
+        }
+        let rows = signal.count
+        let columns = signal.first!.count
+        
+        let components = 3
+        
+        let X = UnsafeMutablePointer<UnsafeMutablePointer<Double>?>.allocate(capacity: rows)
+        X.initialize(repeating: nil, count: rows)
+        
+        var rowPointers = [UnsafeMutablePointer<Double>]()
+                
+        for (rowIndex, rowValue) in signal.enumerated() {
+            let p = UnsafeMutablePointer<Double>.allocate(capacity: columns)
+            p.initialize(repeating: 0, count: columns)
+            rowPointers.append(p)
+            rowValue.enumerated().forEach { (colIndex, colValue) in
+                X[rowIndex] = p
+                X[rowIndex]?[colIndex] = colValue
+            }
+        }
+        
+        defer {
+            rowPointers.forEach{ pointer in
+                pointer.deinitialize(count: columns)
+                pointer.deallocate()
+            }
+            S?.deinitialize(count: columns)
+            S?.deallocate()
+        }
+        
+        let S = calcFastICA(X, Int32(rows), Int32(columns), Int32(components))
+        //convert to matrix
+        if let S = S {
+            var output = [[Double]]()
+            for r in 0..<rows {
+               var cols = [Double]()
+                for c in 0..<columns {
+                    let value = S[r]![c]
+                    cols.append(value)
+                }
+                output.append(cols)
+            }
+            let M = Matrix<Double>(output)
+    //        print("M: \(M)")
+                    
+            for c in 0..<M.columns {
+                let col = M[column:c]
+                
+                //TODO: cut to power or two
+                let signal = Array(col.map{Float($0)})
+                //TODO: windowing
+    //            windowingFFT(signal: signal, windowSize: windowSize)
+                let detector = HRDetector(signal: signal)
+                let hr = detector.calcHR()
+                print("HR: \(hr)")
+            }
+        }
+    }
+    
     func stop() {
         
         //TODO: delegate!
         //                DispatchQueue.main.async {
         //                    self.pulseLabel.text = "Put your finger on camera!"
         //                }
-        validFrameCounter = 0
-        pulseDetector.reset()
         
-        if red.count > 0 {
-            try? red.map{ String(describing: $0) }
-            .joined(separator: "\n")
-            .write(fileName:"red.txt")
+        if signal.count > 0 {
+            try? signal.map{ String(describing: $0) }
+                .joined(separator: "\n")
+                .write(fileName:"colorSignal.txt")
         }
-        
-        if green.count > 0 {
-            try? green.map{ String(describing: $0) }
-            .joined(separator: "\n")
-            .write(fileName:"green.txt")
-        }
-        
-        if blue.count > 0 {
-            try? blue.map{ String(describing: $0) }
-            .joined(separator: "\n")
-            .write(fileName:"blue.txt")
-        }
-        
-        red = []; green = []; blue = []
+        signal.removeAll()
+        buffer.removeAll()
+//        if red.count > 0 {
+//            try? red.map{ String(describing: $0) }
+//            .joined(separator: "\n")
+//            .write(fileName:"red.txt")
+//        }
+                
     }
 }
 
@@ -211,10 +249,10 @@ public extension UIImage {
 import CoreImage
 
 extension CIImage {
-  func cgImage() -> CGImage? {
-    if cgImage != nil {
-      return cgImage
+    func cgImage() -> CGImage? {
+        if cgImage != nil {
+            return cgImage
+        }
+        return CIContext().createCGImage(self, from: extent)
     }
-    return CIContext().createCGImage(self, from: extent)
-  }
 }

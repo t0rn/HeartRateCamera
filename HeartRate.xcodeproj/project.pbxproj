@@ -22,6 +22,7 @@
 		3381AA2C249566A700195FAF /* Matrix.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3381AA2B249566A700195FAF /* Matrix.swift */; };
 		3381AA2E249566AF00195FAF /* HRDetector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3381AA2D249566AE00195FAF /* HRDetector.swift */; };
 		3381AA302495681000195FAF /* FFT.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3381AA2F2495681000195FAF /* FFT.swift */; };
+		3381AA322496AC4400195FAF /* RingBuffer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3381AA312496AC4400195FAF /* RingBuffer.swift */; };
 		339B128B222BD16700DBA135 /* Filter.m in Sources */ = {isa = PBXBuildFile; fileRef = 339B1289222BD16700DBA135 /* Filter.m */; };
 		339B128F222BD2E300DBA135 /* PulseDetector.mm in Sources */ = {isa = PBXBuildFile; fileRef = 339B128E222BD2E300DBA135 /* PulseDetector.mm */; };
 		33AC596722E3A0D1004EA38E /* CustomStringConvertible+WriteToFIle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 33AC596622E3A0D1004EA38E /* CustomStringConvertible+WriteToFIle.swift */; };
@@ -63,6 +64,7 @@
 		3381AA2B249566A700195FAF /* Matrix.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Matrix.swift; sourceTree = "<group>"; };
 		3381AA2D249566AE00195FAF /* HRDetector.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HRDetector.swift; sourceTree = "<group>"; };
 		3381AA2F2495681000195FAF /* FFT.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FFT.swift; sourceTree = "<group>"; };
+		3381AA312496AC4400195FAF /* RingBuffer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RingBuffer.swift; sourceTree = "<group>"; };
 		339B1288222BD16500DBA135 /* HeartRate-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "HeartRate-Bridging-Header.h"; sourceTree = "<group>"; };
 		339B1289222BD16700DBA135 /* Filter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Filter.m; sourceTree = "<group>"; };
 		339B128A222BD16700DBA135 /* Filter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Filter.h; sourceTree = "<group>"; };
@@ -133,6 +135,7 @@
 				330D723F23C7AE99004FA98F /* FaceViewController.swift */,
 				330D724123C7B2F9004FA98F /* FaceView.swift */,
 				330D724323C7BAC2004FA98F /* CoreGraphicsExtensions.swift */,
+				3381AA312496AC4400195FAF /* RingBuffer.swift */,
 			);
 			path = HeartRate;
 			sourceTree = "<group>";
@@ -246,6 +249,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				334CD14421CE72E7002DF0F5 /* VideoCaptureService.swift in Sources */,
+				3381AA322496AC4400195FAF /* RingBuffer.swift in Sources */,
 				339B128B222BD16700DBA135 /* Filter.m in Sources */,
 				333962B523CB406D0051C6AC /* SignalProcessor.swift in Sources */,
 				334CD13221CE64B3002DF0F5 /* ViewController.swift in Sources */,

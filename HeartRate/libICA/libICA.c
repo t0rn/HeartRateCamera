@@ -247,7 +247,7 @@ void fastICA(mat X, int rows, int cols, int compc, mat K, mat W, mat A, mat S)
 	vect_delete(d);
 }
 
-double** myFastICA(double** X, int rows, int cols, int compc)
+double** calcFastICA(double** X, int rows, int cols, int compc)
 {
     
     double** W = mat_create(compc, compc);

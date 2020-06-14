@@ -42,9 +42,9 @@ class FaceViewController: UIViewController {
             guard let self = self else {return}
             //print valid frames
 //            let validFrames = min(100, (100*self.hrBuffer.validFrameCounter)/10) //10 is a MIN_FRAMES_FOR_FILTER_TO_SETTLE
-            print("pulse \(self.signalProcessor.pulse)")
+            
             DispatchQueue.main.async {
-                self.pulseLabel.text = String(describing:self.signalProcessor.pulse)
+//                self.pulseLabel.text = String(describing:self.signalProcessor.pulse)
                 self.colorView.backgroundColor = self.signalProcessor.colors.last ?? UIColor.black
             }
         }
