@@ -26,7 +26,7 @@ class FFT {
                                  ofType: DSPSplitComplex.self)!
     }
     
-    func caltHR(signal:[Float], fps: Float) -> Float {
+    func maxFrequency(signal:[Float], fps: Float) -> Float {
         //Create the Source and Destination Arrays for the Forward FFT
         //The FFT operates on complex numbers, that is numbers that contain a real part and an imaginary part. Create two arrays—one for the real parts and one for the imaginary parts—for the input and output to the FFT operation:
         let N = signal.count
@@ -132,8 +132,9 @@ class FFT {
         print("Frequency: \(maxFrequency)")
         print("Phase: \(maxPhase + .pi / 2)")
         
-        let hr = maxFrequency * 60.0
-        return hr
+        return maxFrequency
+//        let hr = maxFrequency * 60.0
+//        return hr
     }
         
     fileprivate func getFrequencies(_ N: Int, fps: Float) -> [Float] {

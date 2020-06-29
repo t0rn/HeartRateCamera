@@ -95,7 +95,8 @@ class VideoCaptureService: NSObject, AVCaptureVideoDataOutputSampleBufferDelegat
 
     
     func setupVideoFormat(with preferredSpec:VideoSpec?) {
-        captureSession.sessionPreset = .low
+//        captureSession.sessionPreset = .low
+//        captureSession.sessionPreset = .vga640x480
         if let preferredSpec = preferredSpec {
             videoDevice.updateFormatWithPreferredVideoSpec(preferredSpec: preferredSpec)
         }

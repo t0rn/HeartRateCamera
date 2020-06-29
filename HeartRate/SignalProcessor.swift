@@ -16,11 +16,26 @@ class SignalProcessor {
         let green: Float
         let blue: Float
     }
+    let windowSize = 256
+    let sampleRate:Float = 30.0
     
     private(set) var signal: [ColorSignal] = []
-    private(set) var buffer = RingBuffer<ColorSignal>(count: 128) //buffer size
+    
+    private lazy var buffer: RingBuffer<ColorSignal> = {
+        return RingBuffer<ColorSignal>(count: windowSize)
+    }()
+        
     private(set) var colors: [UIColor] = []
     
+    private(set) var hrBuffer = RingBuffer<Float>(count:5)
+    
+    var averageHR: Float {
+        var buffer = hrBuffer
+        let hrs = buffer.readAll()
+        let sum = hrs.reduce(.zero, +)
+        let average = sum / Float(hrs.count)
+        return average
+    }
     
     private let ciContext = CIContext(options: [.workingColorSpace: kCFNull])
             
@@ -31,7 +46,7 @@ class SignalProcessor {
         if let cropRect = cropRect {
             inputImage = inputImage.cropped(to: cropRect)
         }
-        print("inputImage after crop \(inputImage)")
+//        print("inputImage after crop \(inputImage)")
         
         guard inputImage.extent.isEmpty == false,
             let averageColor = inputImage.averageColor(in:ciContext) else {
@@ -42,6 +57,8 @@ class SignalProcessor {
             print("Cant create cgImage!")
             return
         }
+        
+        colors.append(averageColor)
         
         var redmean:CGFloat = 0.0
         var greenmean:CGFloat = 0.0
@@ -66,30 +83,29 @@ class SignalProcessor {
             }
             BGRA_index += 1
         }
+        
         let colorSignal = ColorSignal(red: Float(redmean),
                                       green: Float(greenmean),
                                       blue: Float(bluemean))
         signal.append(colorSignal)
         buffer.write(colorSignal)
-        print(buffer.isFull)
+        //estimate color signal every second
         if buffer.isFull {
-            //read all values and pass to hr detector
-            calcICA(buffer.readAll())
+            calcICA(signal.suffix(windowSize), componentsCount: 3)
+            //remove elements (sampleRate)
+            _ = (0...Int(sampleRate)).map{_ in buffer.read()}
         }
 ////        let color = UIColor(red: redmean/255.0, green: greenmean/255.0, blue: bluemean/255.0, alpha: 1.0)
-        colors.append(averageColor)
         
     }
     
     //TODO: float vs double
-    func calcICA(_ input: [ColorSignal]) {
+    func calcICA(_ input: [ColorSignal], componentsCount: Int) {
         let signal = input.map{ colorSignal -> [Double] in
             [Double(colorSignal.red), Double(colorSignal.green), Double(colorSignal.blue)]
         }
         let rows = signal.count
         let columns = signal.first!.count
-        
-        let components = 3
         
         let X = UnsafeMutablePointer<UnsafeMutablePointer<Double>?>.allocate(capacity: rows)
         X.initialize(repeating: nil, count: rows)
@@ -115,32 +131,60 @@ class SignalProcessor {
             S?.deallocate()
         }
         
-        let S = calcFastICA(X, Int32(rows), Int32(columns), Int32(components))
+        let S = calcFastICA(X, Int32(rows), Int32(columns), Int32(componentsCount))
         //convert to matrix
-        if let S = S {
-            var output = [[Double]]()
-            for r in 0..<rows {
-               var cols = [Double]()
-                for c in 0..<columns {
-                    let value = S[r]![c]
-                    cols.append(value)
-                }
-                output.append(cols)
+        guard let pointer = S else {return}
+        var components = [[Double]]()
+        for r in 0..<rows {
+            var cols = [Double]()
+            for c in 0..<columns {
+                let value = pointer[r]![c]
+                cols.append(value)
             }
-            let M = Matrix<Double>(output)
-    //        print("M: \(M)")
-                    
-            for c in 0..<M.columns {
-                let col = M[column:c]
-                
-                //TODO: cut to power or two
-                let signal = Array(col.map{Float($0)})
-                //TODO: windowing
-    //            windowingFFT(signal: signal, windowSize: windowSize)
-                let detector = HRDetector(signal: signal)
-                let hr = detector.calcHR()
-                print("HR: \(hr)")
+            components.append(cols)
+        }
+        let M = Matrix<Double>(components)
+        
+        //find frequiency with max power
+        
+        var redFreqs = [Float](repeating: 0.0, count: windowSize)
+        var greenFreq = [Float](repeating: 0.0, count: windowSize)
+        var blueFreqs = [Float](repeating: 0.0, count: windowSize)
+        for c in 0..<M.columns {
+            let col = M[column:c]
+            let signal = Array(col.map{Float($0)})
+            let detector = FrequencyCalculator(signal: signal, windowSize: windowSize, sampleRate: sampleRate)
+            if c == 0 {
+                print("Red signal")
+                redFreqs.append(detector.maxFrequency())
             }
+            if  c == 1 {
+                print("Green signal")
+                greenFreq.append(detector.maxFrequency())
+            }
+            if c == 2 {
+                print("Blue signal")
+                blueFreqs.append(detector.maxFrequency())
+            }
+        }
+//        guard let maxFreq = freqs.max() else { return }
+        if let rMax = redFreqs.max(),
+            let gMax = greenFreq.max(),
+            let bMax = blueFreqs.max() {
+            let rHR = rMax * 60.0
+            print("Red HR: \(rHR)")
+            let gHR = gMax * 60.0
+            print("Green HR: \(gHR)")
+            let bHR = bMax * 60.0
+            print("Blue HR: \(bHR)")
+            
+            let hr = [rMax,gMax,bMax].max()! * 60.0
+            
+            print("max HR: \(hr)")
+            if hrBuffer.isFull {
+                _  = hrBuffer.read()
+            }
+            hrBuffer.write(hr)
         }
     }
     

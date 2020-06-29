@@ -9,30 +9,33 @@
 import Foundation
 import Accelerate
 
-class HRDetector {
-    let samplingRate: Float = 10.0
-    let windowSize = 128
+class FrequencyCalculator {
+    let sampleRate: Float
+    let windowSize: Int  //Should be power of two for the FFT !
     let signal: [Float]
-    
-    private(set) var pageNumber: Int = 0
+        
     private let fft: FFT
     
     lazy var window: [Float] = {
         vDSP.window(ofType: Float.self,
                     usingSequence: .hamming,
-                    count: self.windowSize, //Should be power of two for the FFT !
+                    count: self.windowSize,
                     isHalfWindow: false)
     }()
     
-    init(signal: [Float]) {
+    init(signal: [Float],
+         windowSize: Int,
+         sampleRate: Float) {
         self.signal = signal
+        self.windowSize = windowSize
+        self.sampleRate = sampleRate
         fft = FFT(length: windowSize)
     }
     
-    func calcHR() -> Float { //TODO: bufferize and return average
-        let seconds = Float(window.count) / samplingRate
+    func maxFrequency() -> Float {
+        let seconds = Float(window.count) / sampleRate
         let fps = Float(window.count) / seconds
-        let hrValue = fft.caltHR(signal: signal, fps: fps)
-        return hrValue
+        let freq = fft.maxFrequency(signal: signal, fps: fps)
+        return freq
     }
 }

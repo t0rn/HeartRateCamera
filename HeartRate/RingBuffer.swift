@@ -60,7 +60,6 @@ public struct RingBuffer<T> {
     
     public mutating func readAll() -> [T] {
         guard isEmpty == false else { return [] }
-//        var result = [T?](repeating: nil, count: availableSpaceForReading)
         var result = [T?]()
         while availableSpaceForReading > 0 {
             result.append(read())
@@ -90,5 +89,14 @@ private extension Array {
         set {
             self[index % count] = newValue
         }
+    }
+}
+
+extension RingBuffer: CustomStringConvertible {
+    public var description: String {
+        let values = (0..<availableSpaceForReading).map {
+            String(describing: array[($0 + readIndex) % array.count]!)
+        }
+        return "[" + values.joined(separator: ", ") + "]"
     }
 }

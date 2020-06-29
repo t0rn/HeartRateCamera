@@ -22,7 +22,7 @@ class FaceViewController: UIViewController {
     @IBOutlet weak var colorView: UIView!
     
     lazy var videoCapture: VideoCaptureService = {
-        let spec = VideoCaptureService.VideoSpec(fps: 30, size: nil /*CGSize(width: 300, height: 300)*/)
+        let spec = VideoCaptureService.VideoSpec(fps: 30, size:CGSize(width: 1280, height: 720))
         let videoCapture = VideoCaptureService(cameraType: .front,
                                         preferredSpec: spec,
                                         previewContainer: self.previewView.layer)
@@ -38,13 +38,15 @@ class FaceViewController: UIViewController {
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         videoCapture.startCapture()
-        Timer.scheduledTimer(withTimeInterval: 0.5, repeats: true) { [weak self] (timer) in
+        Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { [weak self] (timer) in
             guard let self = self else {return}
             //print valid frames
 //            let validFrames = min(100, (100*self.hrBuffer.validFrameCounter)/10) //10 is a MIN_FRAMES_FOR_FILTER_TO_SETTLE
             
             DispatchQueue.main.async {
-//                self.pulseLabel.text = String(describing:self.signalProcessor.pulse)
+                let hr = self.signalProcessor.averageHR
+                print("average HR: \(hr)")
+                self.pulseLabel.text = String(format: "%.f", hr)
                 self.colorView.backgroundColor = self.signalProcessor.colors.last ?? UIColor.black
             }
         }
@@ -53,7 +55,6 @@ class FaceViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
     }
     
     var faceViewBounds: CGRect?

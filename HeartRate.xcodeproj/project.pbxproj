@@ -20,7 +20,7 @@
 		334CD14421CE72E7002DF0F5 /* VideoCaptureService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 334CD14321CE72E7002DF0F5 /* VideoCaptureService.swift */; };
 		334CD14621CE733E002DF0F5 /* AVCaptureDevice+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 334CD14521CE733E002DF0F5 /* AVCaptureDevice+Extensions.swift */; };
 		3381AA2C249566A700195FAF /* Matrix.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3381AA2B249566A700195FAF /* Matrix.swift */; };
-		3381AA2E249566AF00195FAF /* HRDetector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3381AA2D249566AE00195FAF /* HRDetector.swift */; };
+		3381AA2E249566AF00195FAF /* FrequencyCalculator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3381AA2D249566AE00195FAF /* FrequencyCalculator.swift */; };
 		3381AA302495681000195FAF /* FFT.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3381AA2F2495681000195FAF /* FFT.swift */; };
 		3381AA322496AC4400195FAF /* RingBuffer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3381AA312496AC4400195FAF /* RingBuffer.swift */; };
 		339B128B222BD16700DBA135 /* Filter.m in Sources */ = {isa = PBXBuildFile; fileRef = 339B1289222BD16700DBA135 /* Filter.m */; };
@@ -62,7 +62,7 @@
 		334CD14321CE72E7002DF0F5 /* VideoCaptureService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoCaptureService.swift; sourceTree = "<group>"; };
 		334CD14521CE733E002DF0F5 /* AVCaptureDevice+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AVCaptureDevice+Extensions.swift"; sourceTree = "<group>"; };
 		3381AA2B249566A700195FAF /* Matrix.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Matrix.swift; sourceTree = "<group>"; };
-		3381AA2D249566AE00195FAF /* HRDetector.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HRDetector.swift; sourceTree = "<group>"; };
+		3381AA2D249566AE00195FAF /* FrequencyCalculator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FrequencyCalculator.swift; sourceTree = "<group>"; };
 		3381AA2F2495681000195FAF /* FFT.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FFT.swift; sourceTree = "<group>"; };
 		3381AA312496AC4400195FAF /* RingBuffer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RingBuffer.swift; sourceTree = "<group>"; };
 		339B1288222BD16500DBA135 /* HeartRate-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "HeartRate-Bridging-Header.h"; sourceTree = "<group>"; };
@@ -115,7 +115,7 @@
 			isa = PBXGroup;
 			children = (
 				3381AA2F2495681000195FAF /* FFT.swift */,
-				3381AA2D249566AE00195FAF /* HRDetector.swift */,
+				3381AA2D249566AE00195FAF /* FrequencyCalculator.swift */,
 				3381AA2B249566A700195FAF /* Matrix.swift */,
 				33B0DE692470028A0037C0C9 /* libICA */,
 				33EB0F8F244243490097CC17 /* HeartRate.entitlements */,
@@ -267,7 +267,7 @@
 				330D724423C7BAC2004FA98F /* CoreGraphicsExtensions.swift in Sources */,
 				33B0DE782470028A0037C0C9 /* svdcmp.c in Sources */,
 				330D724223C7B2F9004FA98F /* FaceView.swift in Sources */,
-				3381AA2E249566AF00195FAF /* HRDetector.swift in Sources */,
+				3381AA2E249566AF00195FAF /* FrequencyCalculator.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
