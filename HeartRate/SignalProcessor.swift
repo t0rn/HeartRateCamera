@@ -11,30 +11,41 @@ import ClibICA
 
 
 class SignalProcessor {
-    struct ColorSignal {
+    struct ColorSignal: CustomStringConvertible {
         let red: Float
         let green: Float
         let blue: Float
+        
+        var description: String {
+            "\(red);\(green);\(blue)"
+        }
     }
+    
     let windowSize = 256
-    let sampleRate:Float = 30.0
+    let sampleRate: Float = 30.0
     
-    private(set) var signal: [ColorSignal] = []
+    private(set) var inputSignal = [ColorSignal]()
     
+    //for debugging mode
+    //after fastICA
+    private(set) var filteredSignal = [ColorSignal]()
+    //pr power?
+    private(set) var filteredSpectrum:[[Float]] = {
+        let red = [Float]()
+        let green = [Float]()
+        let blue = [Float]()
+        return [red,green,blue]
+    }()  //R G B
+ 
     private lazy var buffer: RingBuffer<ColorSignal> = {
         return RingBuffer<ColorSignal>(count: windowSize)
     }()
-        
+    
+    private(set) var hrBuffer = RingBuffer<Float>(count:10)
     private(set) var colors: [UIColor] = []
-    
-    private(set) var hrBuffer = RingBuffer<Float>(count:5)
-    
+        
     var averageHR: Float {
-        var buffer = hrBuffer
-        let hrs = buffer.readAll()
-        let sum = hrs.reduce(.zero, +)
-        let average = sum / Float(hrs.count)
-        return average
+        return hrBuffer.average()
     }
     
     private let ciContext = CIContext(options: [.workingColorSpace: kCFNull])
@@ -87,11 +98,11 @@ class SignalProcessor {
         let colorSignal = ColorSignal(red: Float(redmean),
                                       green: Float(greenmean),
                                       blue: Float(bluemean))
-        signal.append(colorSignal)
+        inputSignal.append(colorSignal)
         buffer.write(colorSignal)
         //estimate color signal every second
         if buffer.isFull {
-            calcICA(signal.suffix(windowSize), componentsCount: 3)
+            calcICA(inputSignal.suffix(windowSize), componentsCount: 3)
             //remove elements (sampleRate)
             _ = (0...Int(sampleRate)).map{_ in buffer.read()}
         }
@@ -150,21 +161,29 @@ class SignalProcessor {
         var redFreqs = [Float](repeating: 0.0, count: windowSize)
         var greenFreq = [Float](repeating: 0.0, count: windowSize)
         var blueFreqs = [Float](repeating: 0.0, count: windowSize)
+        
+        
         for c in 0..<M.columns {
             let col = M[column:c]
             let signal = Array(col.map{Float($0)})
             let detector = FrequencyCalculator(signal: signal, windowSize: windowSize, sampleRate: sampleRate)
             if c == 0 {
                 print("Red signal")
-                redFreqs.append(detector.maxFrequency())
+                let (_, phase, spectrum) = detector.filter(signal: signal)
+                filteredSpectrum[0] = spectrum
+                redFreqs.append(detector.maxFrequency(phase: phase, spectrum: spectrum))
             }
             if  c == 1 {
                 print("Green signal")
-                greenFreq.append(detector.maxFrequency())
+                let (_, phase, spectrum) = detector.filter(signal: signal)
+                filteredSpectrum[1] = spectrum
+                greenFreq.append(detector.maxFrequency(phase: phase, spectrum: spectrum))
             }
             if c == 2 {
                 print("Blue signal")
-                blueFreqs.append(detector.maxFrequency())
+                let (_, phase, spectrum) = detector.filter(signal: signal)
+                filteredSpectrum[2] = spectrum
+                blueFreqs.append(detector.maxFrequency(phase: phase, spectrum: spectrum))
             }
         }
 //        guard let maxFreq = freqs.max() else { return }
@@ -179,14 +198,25 @@ class SignalProcessor {
             print("Blue HR: \(bHR)")
             
             let hr = [rMax,gMax,bMax].max()! * 60.0
-            
             print("max HR: \(hr)")
-            if hrBuffer.isFull {
-                _  = hrBuffer.read()
-            }
-            hrBuffer.write(hr)
+            
+            filter(hrValue: hr)
         }
     }
+    
+    
+    func filter(hrValue:Float, hrThreshold:Float = 10 ) {
+        if hrBuffer.isFull {
+            if let lastHr = hrBuffer.last {
+                if abs(hrValue - lastHr) > hrThreshold {
+                    print("do not write new HR value!")
+                    return
+                }
+            }
+        }
+        hrBuffer.write(hrValue)
+    }
+    
     
     func stop() {
         
@@ -195,13 +225,28 @@ class SignalProcessor {
         //                    self.pulseLabel.text = "Put your finger on camera!"
         //                }
         
-        if signal.count > 0 {
-            try? signal.map{ String(describing: $0) }
+        if inputSignal.count > 0 {
+            try? inputSignal.map{ String(describing: $0) }
                 .joined(separator: "\n")
                 .write(fileName:"colorSignal.txt")
         }
-        signal.removeAll()
+        
+        try? hrBuffer
+            .map{ String(describing: $0) }
+            .write(fileName: "hrBuffer.txt")
+        
+        try? buffer
+            .map{ String(describing: $0) }
+            .joined(separator: "\n")
+            .write(fileName: "SignalBuffer.txt")
+        
+        try? filteredSpectrum
+            .map{ String(describing: $0) }
+            .write(fileName: "FilteredSpectrum.txt")
+        
+        inputSignal.removeAll()
         buffer.removeAll()
+        hrBuffer.removeAll()
 //        if red.count > 0 {
 //            try? red.map{ String(describing: $0) }
 //            .joined(separator: "\n")

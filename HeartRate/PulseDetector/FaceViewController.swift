@@ -45,7 +45,6 @@ class FaceViewController: UIViewController {
             
             DispatchQueue.main.async {
                 let hr = self.signalProcessor.averageHR
-                print("average HR: \(hr)")
                 self.pulseLabel.text = String(format: "%.f", hr)
                 self.colorView.backgroundColor = self.signalProcessor.colors.last ?? UIColor.black
             }

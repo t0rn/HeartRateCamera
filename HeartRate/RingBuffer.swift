@@ -17,6 +17,9 @@ public struct RingBuffer<T> {
         array = [T?](repeating: nil, count: count)
     }
     
+    public var count: Int {
+        return availableSpaceForReading
+    }
     /* Returns false if out of space. */
     @discardableResult
     public mutating func write(_ element: T) -> Bool {
@@ -66,6 +69,11 @@ public struct RingBuffer<T> {
         }
         return result.compactMap{$0}
     }
+    ///returns last written element
+    public var last: T? {
+        let lastIndex = writeIndex - 1
+        return array[wrapped: lastIndex]
+    }
 }
 
 extension RingBuffer: Sequence {
@@ -92,6 +100,12 @@ private extension Array {
     }
 }
 
+extension RingBuffer {
+    public var first: T? {
+        return array[readIndex]
+    }
+}
+
 extension RingBuffer: CustomStringConvertible {
     public var description: String {
         let values = (0..<availableSpaceForReading).map {
@@ -100,3 +114,51 @@ extension RingBuffer: CustomStringConvertible {
         return "[" + values.joined(separator: ", ") + "]"
     }
 }
+
+
+public extension RingBuffer {
+    subscript (reverted index:Int) -> Element? {
+        get {
+            guard index < array.count, index >= 0 else {return nil}
+            let i = (array.count + writeIndex % array.count - 1 - index) % array.count
+            return array[i]
+        }
+        set {
+            let i = (array.count + writeIndex % array.count - 1 - index) % array.count
+            array[i] = newValue
+        }
+    }
+}
+
+public extension RingBuffer where T: Comparable {
+    ///Returns the index of the last element in collection
+    func lastIndex(of element:T) -> Int? {
+        return array.lastIndex(of: element)
+    }
+    
+    func firstIndex(of element:T) -> Int? {
+        return array.firstIndex(of: element)
+    }
+}
+
+public extension RingBuffer where T: Comparable {
+    ///Returns the index of the last element in collection
+    func reversedLastIndex(of element:T) -> Int? {
+        return self.reversed().lastIndex(of: element)
+    }
+    
+    func reversedFirstIndex(of element:T) -> Int? {
+        return self.reversed().firstIndex(of: element)
+    }
+}
+
+extension RingBuffer where T: BinaryFloatingPoint {
+    func sum() -> T { reduce(.zero, +) }
+    
+    func average() -> T {
+        guard !isEmpty else {return .zero}
+        return sum() / T(count)
+    }
+    
+}
+
