@@ -12,7 +12,7 @@ import CoreImage
 
 class ViewController: UIViewController {
     
-    private var videoCapture: VideoCapture!
+    private var videoCapture: VideoCaptureService!
     @IBOutlet private weak var previewView: UIView!
     
     private let hrBuffer = SignalProcessor()
@@ -22,8 +22,8 @@ class ViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
-        let spec = VideoSpec(fps: 10, size: CGSize(width: 300, height: 300))
-        videoCapture = VideoCapture(cameraType: .back,
+        let spec = VideoCaptureService.VideoSpec(fps: 10, size: CGSize(width: 300, height: 300))
+        videoCapture = VideoCaptureService(cameraType: .back,
                                     preferredSpec: spec,
                                     previewContainer: previewView.layer)
         

@@ -17,7 +17,7 @@
 		334CD13521CE64B3002DF0F5 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 334CD13321CE64B3002DF0F5 /* Main.storyboard */; };
 		334CD13721CE64B6002DF0F5 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 334CD13621CE64B6002DF0F5 /* Assets.xcassets */; };
 		334CD13A21CE64B6002DF0F5 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 334CD13821CE64B6002DF0F5 /* LaunchScreen.storyboard */; };
-		334CD14421CE72E7002DF0F5 /* VideoCapture.swift in Sources */ = {isa = PBXBuildFile; fileRef = 334CD14321CE72E7002DF0F5 /* VideoCapture.swift */; };
+		334CD14421CE72E7002DF0F5 /* VideoCaptureService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 334CD14321CE72E7002DF0F5 /* VideoCaptureService.swift */; };
 		334CD14621CE733E002DF0F5 /* AVCaptureDevice+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 334CD14521CE733E002DF0F5 /* AVCaptureDevice+Extensions.swift */; };
 		339B128B222BD16700DBA135 /* Filter.m in Sources */ = {isa = PBXBuildFile; fileRef = 339B1289222BD16700DBA135 /* Filter.m */; };
 		339B128F222BD2E300DBA135 /* PulseDetector.mm in Sources */ = {isa = PBXBuildFile; fileRef = 339B128E222BD2E300DBA135 /* PulseDetector.mm */; };
@@ -37,7 +37,7 @@
 		334CD13621CE64B6002DF0F5 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		334CD13921CE64B6002DF0F5 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		334CD13B21CE64B6002DF0F5 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		334CD14321CE72E7002DF0F5 /* VideoCapture.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoCapture.swift; sourceTree = "<group>"; };
+		334CD14321CE72E7002DF0F5 /* VideoCaptureService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoCaptureService.swift; sourceTree = "<group>"; };
 		334CD14521CE733E002DF0F5 /* AVCaptureDevice+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AVCaptureDevice+Extensions.swift"; sourceTree = "<group>"; };
 		339B1288222BD16500DBA135 /* HeartRate-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "HeartRate-Bridging-Header.h"; sourceTree = "<group>"; };
 		339B1289222BD16700DBA135 /* Filter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Filter.m; sourceTree = "<group>"; };
@@ -45,6 +45,7 @@
 		339B128D222BD2E300DBA135 /* PulseDetector.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PulseDetector.h; sourceTree = "<group>"; };
 		339B128E222BD2E300DBA135 /* PulseDetector.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = PulseDetector.mm; sourceTree = "<group>"; };
 		33AC596622E3A0D1004EA38E /* CustomStringConvertible+WriteToFIle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CustomStringConvertible+WriteToFIle.swift"; sourceTree = "<group>"; };
+		33EB0F8F244243490097CC17 /* HeartRate.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = HeartRate.entitlements; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -78,8 +79,9 @@
 		334CD12E21CE64B3002DF0F5 /* HeartRate */ = {
 			isa = PBXGroup;
 			children = (
+				33EB0F8F244243490097CC17 /* HeartRate.entitlements */,
 				334CD14521CE733E002DF0F5 /* AVCaptureDevice+Extensions.swift */,
-				334CD14321CE72E7002DF0F5 /* VideoCapture.swift */,
+				334CD14321CE72E7002DF0F5 /* VideoCaptureService.swift */,
 				333962B423CB406D0051C6AC /* SignalProcessor.swift */,
 				33AC596522E3A085004EA38E /* PulseDetector */,
 				339B128C222BD17700DBA135 /* Filter */,
@@ -188,7 +190,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				334CD14421CE72E7002DF0F5 /* VideoCapture.swift in Sources */,
+				334CD14421CE72E7002DF0F5 /* VideoCaptureService.swift in Sources */,
 				339B128B222BD16700DBA135 /* Filter.m in Sources */,
 				333962B523CB406D0051C6AC /* SignalProcessor.swift in Sources */,
 				334CD13221CE64B3002DF0F5 /* ViewController.swift in Sources */,
@@ -346,8 +348,10 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_ENTITLEMENTS = HeartRate/HeartRate.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 657GC2CXLB;
+				"ENABLE_HARDENED_RUNTIME[sdk=macosx*]" = YES;
 				INFOPLIST_FILE = HeartRate/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -356,6 +360,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.alexeyivanov.HeartRate;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTS_MACCATALYST = YES;
 				SWIFT_OBJC_BRIDGING_HEADER = "HeartRate/HeartRate-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 4.2;
@@ -368,8 +373,10 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_ENTITLEMENTS = HeartRate/HeartRate.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 657GC2CXLB;
+				"ENABLE_HARDENED_RUNTIME[sdk=macosx*]" = YES;
 				INFOPLIST_FILE = HeartRate/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -378,6 +385,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.alexeyivanov.HeartRate;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTS_MACCATALYST = YES;
 				SWIFT_OBJC_BRIDGING_HEADER = "HeartRate/HeartRate-Bridging-Header.h";
 				SWIFT_VERSION = 4.2;
 				TARGETED_DEVICE_FAMILY = "1,2";

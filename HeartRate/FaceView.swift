@@ -38,13 +38,10 @@ class FaceView: UIView {
     var boundingBox = CGRect.zero
     
     func clear() {
-        
         leftEyebrow = []
         rightEyebrow = []
         forehead = []
-        
         boundingBox = .zero
-        
         DispatchQueue.main.async {
             self.setNeedsDisplay()
         }
@@ -52,31 +49,23 @@ class FaceView: UIView {
     
     override func draw(_ rect: CGRect) {
         guard let context = UIGraphicsGetCurrentContext() else { return }
-        
         context.saveGState()
-    
         defer {
             context.restoreGState()
         }
-        
         context.addRect(boundingBox)
-        
         UIColor.red.setStroke()
-        
         context.strokePath()
-        
         UIColor.white.setStroke()
         
         if !leftEyebrow.isEmpty {
             context.addLines(between: leftEyebrow)
             context.strokePath()
         }
-        
         if !rightEyebrow.isEmpty {
             context.addLines(between: rightEyebrow)
             context.strokePath()
-        }
-        
+        }        
         if !forehead.isEmpty {
             context.addLines(between: forehead)
             context.closePath()

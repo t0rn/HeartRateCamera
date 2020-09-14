@@ -36,8 +36,8 @@
 @property (nonatomic, assign) float periodStart;
 
 
--(float) addNewValue:(float) newVal atTime:(double) time;
--(float) getAverage;
--(void) reset;
+-(float)addNewValue:(float) newVal atTime:(double) time;
+-(float)getAverage;
+-(void)reset;
 
 @end
