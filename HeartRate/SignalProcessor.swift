@@ -348,6 +348,7 @@ public extension UIImage {
 import CoreImage
 
 extension CIImage {
+    //may be source of performance issue
     func cgImage() -> CGImage? {
         if cgImage != nil {
             return cgImage
@@ -380,7 +381,7 @@ extension CIImage {
 
 import MobileCoreServices
 extension CGImage {
-    func write(fileName:String = "averageColor.png",
+    func write(fileName:String,
                directory: URL = URL(fileURLWithPath:NSTemporaryDirectory())) -> Bool {
         let url = directory.appendingPathComponent(fileName, isDirectory: false)
         guard let destination = CGImageDestinationCreateWithURL(url as CFURL, kUTTypePNG, 1, nil) else {return false}

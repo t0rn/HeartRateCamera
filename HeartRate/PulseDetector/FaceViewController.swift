@@ -18,10 +18,9 @@ class FaceViewController: UIViewController {
     @IBOutlet weak var previewView: UIView!
     @IBOutlet weak var pulseLabel: UILabel!
     @IBOutlet weak var ROIView: UIImageView!
-    
-    private let signalProcessor = SignalProcessor()
-    
     @IBOutlet weak var colorView: UIView!
+        
+    private let signalProcessor = SignalProcessor()
     
     lazy var videoCapture: VideoCaptureService = {
         let spec = VideoCaptureService.VideoSpec(fps: 30, size:CGSize(width: 1280, height: 720))
@@ -63,6 +62,7 @@ class FaceViewController: UIViewController {
     }
     
     var faceViewBounds: CGRect?
+    
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
         faceViewBounds = faceView.bounds
@@ -134,6 +134,7 @@ class FaceViewController: UIViewController {
         }
         //bounding box are normalized between 0.0 and 1.0 to the input image, with the origin at the bottom left corner
         let box = face.boundingBox
+        print(box)
         faceView.boundingBox = convert(rect: box)
         
         guard let landmarks = face.landmarks else {return}
@@ -142,7 +143,7 @@ class FaceViewController: UIViewController {
             faceView.leftEyebrow = leftEyebrow
         }
         
-        if let rightEyebrow = landmark( points: landmarks.rightEyebrow?.normalizedPoints, to: face.boundingBox) {
+        if let rightEyebrow = landmark(points: landmarks.rightEyebrow?.normalizedPoints, to: face.boundingBox) {
             faceView.rightEyebrow = rightEyebrow
         }
         
@@ -171,6 +172,7 @@ class FaceViewController: UIViewController {
     //from normalized
     func convert(rect: CGRect) -> CGRect {
         let origin = videoCapture.previewLayer!.layerPointConverted(fromCaptureDevicePoint: rect.origin)
+        //sizse wuth y with negative value!
         let size = videoCapture.previewLayer!.layerPointConverted(fromCaptureDevicePoint: rect.size.cgPoint)
         return CGRect(origin: origin, size: size.cgSize)
     }
