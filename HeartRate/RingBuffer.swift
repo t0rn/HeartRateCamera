@@ -69,11 +69,18 @@ public struct RingBuffer<T> {
         }
         return result.compactMap{$0}
     }
-    ///returns last written element
+    
+    public var first: T? {
+        return array[readIndex]
+    }
+    
+    
     public var last: T? {
+        guard writeIndex > 0 else {return nil}
         let lastIndex = writeIndex - 1
         return array[wrapped: lastIndex]
     }
+
 }
 
 extension RingBuffer: Sequence {
@@ -97,12 +104,6 @@ private extension Array {
         set {
             self[index % count] = newValue
         }
-    }
-}
-
-extension RingBuffer {
-    public var first: T? {
-        return array[readIndex]
     }
 }
 

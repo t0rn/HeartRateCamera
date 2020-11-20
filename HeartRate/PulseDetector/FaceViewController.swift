@@ -17,6 +17,8 @@ class FaceViewController: UIViewController {
     @IBOutlet weak var faceView: FaceView!
     @IBOutlet weak var previewView: UIView!
     @IBOutlet weak var pulseLabel: UILabel!
+    @IBOutlet weak var ROIView: UIImageView!
+    
     private let signalProcessor = SignalProcessor()
     
     @IBOutlet weak var colorView: UIView!
@@ -26,8 +28,8 @@ class FaceViewController: UIViewController {
         let videoCapture = VideoCaptureService(cameraType: .front,
                                         preferredSpec: spec,
                                         previewContainer: self.previewView.layer)
-        videoCapture.imageBufferHandler = { [unowned self] (imageBuffer) in
-            self.handle(buffer: imageBuffer)
+        videoCapture.imageBufferHandler = { [weak self] (imageBuffer) in
+            self?.handle(buffer: imageBuffer)
         }
         return videoCapture
     }()
@@ -47,6 +49,10 @@ class FaceViewController: UIViewController {
                 let hr = self.signalProcessor.averageHR
                 self.pulseLabel.text = String(format: "%.f", hr)
                 self.colorView.backgroundColor = self.signalProcessor.colors.last ?? UIColor.black
+                if let image = self.signalProcessor.inputImages.last {
+                    let uiImg = UIImage(cgImage: image)
+                    self.ROIView.image = uiImg
+                }
             }
         }
 
@@ -64,10 +70,6 @@ class FaceViewController: UIViewController {
     
     func handle(buffer:CMSampleBuffer) {
         guard let imageBuffer = CMSampleBufferGetImageBuffer(buffer) else {return}
-        //see https://swiftludus.org/face-detection-with-core-image/ for
-        //let transformScale = CGAffineTransform(scaleX: 1, y: -1)
-//        let transform = transformScale.translatedBy(x: 0, y: -faceImage!.extent.height)
-        
         //crop image buffer to ROI (forehead) size
         let detectFaceRequest = VNDetectFaceLandmarksRequest { (request, error) in
             self.detectedFace(request: request, error: error, imageBuffer: imageBuffer)
@@ -98,22 +100,29 @@ class FaceViewController: UIViewController {
             let bottomMostPoint = faceView.forehead.point(for: .bottomMost),
             let rightMostPoint = faceView.forehead.point(for: .rightMost),
             let leftMostPoint = faceView.forehead.point(for: .leftMost) {
+
             let foreheadOrigin = CGPoint(x: leftMostPoint.x,
                                          y: topMostPoint.y)
             let foreheadRect = CGRect(x: foreheadOrigin.x,
                                       y: foreheadOrigin.y,
                                       width: rightMostPoint.x - leftMostPoint.x,
                                       height: bottomMostPoint.y - topMostPoint.y)
+            //https://nacho4d-nacho4d.blogspot.com/2012/03/coreimage-and-uikit-coordinates.html
             //TODO: make it relative in coordinates
             let image = CIImage(cvImageBuffer: imageBuffer)
+            
+            var transform = CGAffineTransform(scaleX: 1, y: -1)
+            transform = transform.translatedBy(x: 0, y: -image.extent.size.height)
+            
             let wFactor = image.extent.width / faceViewBounds!.width
             let hFactor = image.extent.height / faceViewBounds!.height
             let o = CGPoint(x: foreheadOrigin.x * wFactor,
                             y: foreheadOrigin.y * hFactor)
             let size = CGSize(width: foreheadRect.width * wFactor,
                               height: foreheadRect.height * hFactor)
-            
-            signalProcessor.handle(imageBuffer: imageBuffer, cropRect: CGRect(origin: o, size: size))
+//            let cropRect = CGRect(origin: o, size: size)
+            let cropRect = CGRect(origin: o, size: size).applying(transform)
+            signalProcessor.handle(imageBuffer: imageBuffer, cropRect: cropRect)
         }
     }
     

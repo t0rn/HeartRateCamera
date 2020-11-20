@@ -22,7 +22,7 @@ class SignalProcessor {
     }
     
     let windowSize = 256
-    let sampleRate: Float = 30.0
+    let sampleRate: Float = 30.0 //30 frame per sec
     
     private(set) var inputSignal = [ColorSignal]()
     
@@ -42,8 +42,10 @@ class SignalProcessor {
     }()
     
     private(set) var hrBuffer = RingBuffer<Float>(count:10)
+    //TODO: for testing
     private(set) var colors: [UIColor] = []
-        
+    private(set) var inputImages = RingBuffer<CGImage>(count: 10)
+    
     var averageHR: Float {
         return hrBuffer.average()
     }
@@ -57,8 +59,15 @@ class SignalProcessor {
         if let cropRect = cropRect {
             inputImage = inputImage.cropped(to: cropRect)
         }
-//        print("inputImage after crop \(inputImage)")
-        
+
+        //TODO: tesing
+        if let x = inputImage.cgImage() {
+            if true == inputImages.isFull {
+                _ = inputImages.read()
+            }
+            inputImages.write(x)
+        }
+//        inputImage.saveJPEG("ROI_\(inputSignal.count)")
         guard inputImage.extent.isEmpty == false,
             let averageColor = inputImage.averageColor(in:ciContext) else {
                 print("Cant create averageColor!")
@@ -68,7 +77,7 @@ class SignalProcessor {
             print("Cant create cgImage!")
             return
         }
-        
+//        averateColorCGImage.write(fileName: "averageColor_\(colors.count)")
         colors.append(averageColor)
         
         var redmean:CGFloat = 0.0
@@ -104,7 +113,8 @@ class SignalProcessor {
         if buffer.isFull {
             calcICA(inputSignal.suffix(windowSize), componentsCount: 3)
             //remove elements (sampleRate)
-            _ = (0...Int(sampleRate)).map{_ in buffer.read()}
+            _ = (0...Int(sampleRate))
+                .map{_ in buffer.read()}
         }
 ////        let color = UIColor(red: redmean/255.0, green: greenmean/255.0, blue: bluemean/255.0, alpha: 1.0)
         
@@ -206,14 +216,14 @@ class SignalProcessor {
     
     
     func filter(hrValue:Float, hrThreshold:Float = 10 ) {
-        if hrBuffer.isFull {
-            if let lastHr = hrBuffer.last {
-                if abs(hrValue - lastHr) > hrThreshold {
-                    print("do not write new HR value!")
-                    return
-                }
-            }
-        }
+//        if hrBuffer.isFull {
+//            if let lastHr = hrBuffer.last {
+//                if abs(hrValue - lastHr) > hrThreshold {
+//                    print("do not write new HR value!")
+//                    return
+//                }
+//            }
+//        }
         hrBuffer.write(hrValue)
     }
     
@@ -343,5 +353,38 @@ extension CIImage {
             return cgImage
         }
         return CIContext().createCGImage(self, from: extent)
+    }
+
+    @objc func saveJPEG(_ name:String, inDirectoryURL:URL? = nil, quality:CGFloat = 1.0) -> String? {
+        var destinationURL = inDirectoryURL
+        if destinationURL == nil {
+            destinationURL = try? FileManager.default.url(for:.documentDirectory, in: .userDomainMask, appropriateFor: nil, create: true)
+        }
+        
+        if var destinationURL = destinationURL {
+            destinationURL = destinationURL.appendingPathComponent(name)
+            if let colorSpace = CGColorSpace(name: CGColorSpace.sRGB) {
+                do {
+                    let context = CIContext()
+                    try context.writeJPEGRepresentation(of: self, to: destinationURL, colorSpace: colorSpace, options: [kCGImageDestinationLossyCompressionQuality as CIImageRepresentationOption : quality])
+                    return destinationURL.path
+                } catch {
+                    return nil
+                }
+            }
+        }
+        return nil
+    }
+    
+}
+
+import MobileCoreServices
+extension CGImage {
+    func write(fileName:String = "averageColor.png",
+               directory: URL = URL(fileURLWithPath:NSTemporaryDirectory())) -> Bool {
+        let url = directory.appendingPathComponent(fileName, isDirectory: false)
+        guard let destination = CGImageDestinationCreateWithURL(url as CFURL, kUTTypePNG, 1, nil) else {return false}
+        CGImageDestinationAddImage(destination, self, nil)
+        return CGImageDestinationFinalize(destination)
     }
 }
