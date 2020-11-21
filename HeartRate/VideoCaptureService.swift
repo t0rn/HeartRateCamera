@@ -122,8 +122,9 @@ class VideoCaptureService: NSObject, AVCaptureVideoDataOutputSampleBufferDelegat
         DispatchQueue.main.async {
             let previewLayer = AVCaptureVideoPreviewLayer(session: self.captureSession)
             previewLayer.frame = previewContainer.bounds
+            previewLayer.connection?.videoOrientation = .portrait //TODO:
             previewLayer.contentsGravity = .resizeAspectFill
-            previewLayer.videoGravity = AVLayerVideoGravity.resizeAspectFill
+            previewLayer.videoGravity = .resizeAspectFill
             previewContainer.insertSublayer(previewLayer, at: 0)
             self.previewLayer = previewLayer
         }
@@ -171,10 +172,6 @@ class VideoCaptureService: NSObject, AVCaptureVideoDataOutputSampleBufferDelegat
     func captureOutput(_ output: AVCaptureOutput,
                        didOutput sampleBuffer: CMSampleBuffer,
                        from connection: AVCaptureConnection) {
-        if connection.videoOrientation != .portrait {
-            connection.videoOrientation = .portrait
-            return
-        }
         
         if let imageBufferHandler = imageBufferHandler {
             imageBufferHandler(sampleBuffer)

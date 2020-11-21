@@ -92,14 +92,14 @@
                                 <rect key="frame" x="0.0" y="8" width="375" height="610"/>
                                 <subviews>
                                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="owz-Vv-VkR">
-                                        <rect key="frame" x="0.0" y="0.0" width="375" height="383.5"/>
+                                        <rect key="frame" x="0.0" y="0.0" width="375" height="583.5"/>
                                         <subviews>
                                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Gew-CT-VPe">
-                                                <rect key="frame" x="0.0" y="0.0" width="375" height="383.5"/>
+                                                <rect key="frame" x="0.0" y="0.0" width="375" height="583.5"/>
                                                 <color key="backgroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                             </view>
                                             <view alpha="0.64999997615814209" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Vmk-qO-r2C" customClass="FaceView" customModule="HeartRate" customModuleProvider="target">
-                                                <rect key="frame" x="0.0" y="0.0" width="375" height="383.5"/>
+                                                <rect key="frame" x="0.0" y="0.0" width="375" height="583.5"/>
                                                 <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                             </view>
                                         </subviews>
@@ -116,18 +116,18 @@
                                         </constraints>
                                     </view>
                                     <view contentMode="scaleAspectFit" translatesAutoresizingMaskIntoConstraints="NO" id="C6I-y1-04B" userLabel="ROIView" customClass="UIImageView">
-                                        <rect key="frame" x="0.0" y="385.5" width="375" height="100"/>
+                                        <rect key="frame" x="0.0" y="585.5" width="375" height="0.0"/>
                                         <color key="backgroundColor" cocoaTouchSystemColor="groupTableViewBackgroundColor"/>
                                         <constraints>
-                                            <constraint firstAttribute="height" constant="100" id="Ewu-nv-wtb"/>
+                                            <constraint firstAttribute="height" id="Ewu-nv-wtb"/>
                                         </constraints>
                                         <viewLayoutGuide key="safeArea" id="SqW-Ld-0nb"/>
                                     </view>
                                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="PRY-yb-YcD">
-                                        <rect key="frame" x="0.0" y="487.5" width="375" height="100"/>
+                                        <rect key="frame" x="0.0" y="587.5" width="375" height="0.0"/>
                                         <color key="backgroundColor" cocoaTouchSystemColor="groupTableViewBackgroundColor"/>
                                         <constraints>
-                                            <constraint firstAttribute="height" constant="100" id="MVc-3u-CJE"/>
+                                            <constraint firstAttribute="height" id="MVc-3u-CJE"/>
                                         </constraints>
                                     </view>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="750" verticalCompressionResistancePriority="250" text="Processing..." textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="KZo-ZP-ROK">

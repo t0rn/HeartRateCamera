@@ -77,7 +77,7 @@ class FaceViewController: UIViewController {
         do {
             try sequenceHandler.perform([detectFaceRequest],
                                         on: imageBuffer,
-                                        orientation: .leftMirrored)
+                                        orientation: .leftMirrored) //TODO: define by exif
         } catch {
             print(error.localizedDescription)
             return
@@ -110,9 +110,9 @@ class FaceViewController: UIViewController {
             //https://nacho4d-nacho4d.blogspot.com/2012/03/coreimage-and-uikit-coordinates.html
             //TODO: make it relative in coordinates
             let image = CIImage(cvImageBuffer: imageBuffer)
-            
-            var transform = CGAffineTransform(scaleX: 1, y: -1)
-            transform = transform.translatedBy(x: 0, y: -image.extent.size.height)
+//
+//            var transform = CGAffineTransform(scaleX: 1, y: -1)
+//            transform = transform.translatedBy(x: 0, y: -image.extent.size.height)
             
             let wFactor = image.extent.width / faceViewBounds!.width
             let hFactor = image.extent.height / faceViewBounds!.height
@@ -120,8 +120,8 @@ class FaceViewController: UIViewController {
                             y: foreheadOrigin.y * hFactor)
             let size = CGSize(width: foreheadRect.width * wFactor,
                               height: foreheadRect.height * hFactor)
-//            let cropRect = CGRect(origin: o, size: size)
-            let cropRect = CGRect(origin: o, size: size).applying(transform)
+            let cropRect = CGRect(origin: o, size: size)
+//            let cropRect = CGRect(origin: o, size: size).applying(transform)
             signalProcessor.handle(imageBuffer: imageBuffer, cropRect: cropRect)
         }
     }
