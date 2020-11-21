@@ -122,7 +122,7 @@ class VideoCaptureService: NSObject, AVCaptureVideoDataOutputSampleBufferDelegat
         DispatchQueue.main.async {
             let previewLayer = AVCaptureVideoPreviewLayer(session: self.captureSession)
             previewLayer.frame = previewContainer.bounds
-            previewLayer.contentsGravity = CALayerContentsGravity.resizeAspectFill
+            previewLayer.contentsGravity = .resizeAspectFill
             previewLayer.videoGravity = AVLayerVideoGravity.resizeAspectFill
             previewContainer.insertSublayer(previewLayer, at: 0)
             self.previewLayer = previewLayer

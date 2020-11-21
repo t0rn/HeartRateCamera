@@ -86,14 +86,14 @@ class FaceViewController: UIViewController {
 
     func detectedFace(request: VNRequest, error: Error?, imageBuffer:CVImageBuffer) {
         guard
-            let results = request.results as? [VNFaceObservation],
-            let result = results.first
+            let faces = request.results as? [VNFaceObservation],
+            let face = faces.first
             else {
                 faceView.clear()
                 signalProcessor.stop()
                 return
         }
-        updateFaceView(for: result)
+        updateFaceView(for: face)
         //define rect of ROI (forehead) from imagebuffer
         if false == faceView.forehead.isEmpty,
             let topMostPoint = faceView.forehead.point(for: .topMost),
@@ -132,12 +132,14 @@ class FaceViewController: UIViewController {
                 self.faceView.setNeedsDisplay()
             }
         }
+        guard
+            let landmarks = face.landmarks,
+            let previewLayer = videoCapture.previewLayer
+            else {return}
         //bounding box are normalized between 0.0 and 1.0 to the input image, with the origin at the bottom left corner
         let box = face.boundingBox
-        print(box)
         faceView.boundingBox = convert(rect: box)
-        
-        guard let landmarks = face.landmarks else {return}
+//        faceView.boundingBox = face.convertedBoundingBox(for: previewLayer.frame)
                 
         if let leftEyebrow = landmark(points: landmarks.leftEyebrow?.normalizedPoints, to: face.boundingBox) {
             faceView.leftEyebrow = leftEyebrow
@@ -191,3 +193,12 @@ class FaceViewController: UIViewController {
     }
 }
 
+extension VNFaceObservation {
+    func convertedBoundingBox(for frame:CGRect) -> CGRect {
+        let transform = CGAffineTransform(scaleX: 1, y: -1).translatedBy(x: 0, y: -frame.height)
+        let translate = CGAffineTransform.identity.scaledBy(x: frame.width, y: frame.height)
+        // The coordinates are normalized to the dimensions of the processed image, with the origin at the image's lower-left corner.
+        let facebounds = boundingBox.applying(translate).applying(transform)
+        return facebounds
+    }
+}

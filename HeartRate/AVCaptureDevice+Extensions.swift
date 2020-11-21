@@ -75,12 +75,11 @@ extension AVCaptureDevice {
                 try lockForConfiguration()
             }
             catch {
-                fatalError("")
+                fatalError(error.localizedDescription)
             }
             activeFormat = selectedFormat
             
-            if let preferredFps = preferredSpec.fps {
-                
+            if let preferredFps = preferredSpec.fps {                
                 activeVideoMinFrameDuration = CMTimeMake(value: 1, timescale: preferredFps)
                 activeVideoMaxFrameDuration = CMTimeMake(value: 1, timescale: preferredFps)
                 unlockForConfiguration()
