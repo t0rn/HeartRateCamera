@@ -74,10 +74,11 @@ class FaceViewController: UIViewController {
         let detectFaceRequest = VNDetectFaceLandmarksRequest { (request, error) in
             self.detectedFace(request: request, error: error, imageBuffer: imageBuffer)
         }
+        let imageOrientation = UIDevice.current.imageOrientation(by: videoCapture.videoDevice.position)
         do {
             try sequenceHandler.perform([detectFaceRequest],
                                         on: imageBuffer,
-                                        orientation: .leftMirrored) //TODO: define by exif
+                                        orientation: imageOrientation ?? .up) //TODO: define
         } catch {
             print(error.localizedDescription)
             return
@@ -111,8 +112,8 @@ class FaceViewController: UIViewController {
             //TODO: make it relative in coordinates
             let image = CIImage(cvImageBuffer: imageBuffer)
 //
-//            var transform = CGAffineTransform(scaleX: 1, y: -1)
-//            transform = transform.translatedBy(x: 0, y: -image.extent.size.height)
+            var transform = CGAffineTransform(scaleX: 1, y: -1)
+            transform = transform.translatedBy(x: 0, y: -image.extent.size.height)
             
             let wFactor = image.extent.width / faceViewBounds!.width
             let hFactor = image.extent.height / faceViewBounds!.height
@@ -137,9 +138,10 @@ class FaceViewController: UIViewController {
             let previewLayer = videoCapture.previewLayer
             else {return}
         //bounding box are normalized between 0.0 and 1.0 to the input image, with the origin at the bottom left corner
-        let box = face.boundingBox
-        faceView.boundingBox = convert(rect: box)
+//        let box = face.boundingBox
+//        faceView.boundingBox = convert(rect: box)
 //        faceView.boundingBox = face.convertedBoundingBox(for: previewLayer.frame)
+        faceView.boundingBox = face.covertedBoundingBoxIn(previewLayer: previewLayer)
                 
         if let leftEyebrow = landmark(points: landmarks.leftEyebrow?.normalizedPoints, to: face.boundingBox) {
             faceView.leftEyebrow = leftEyebrow
@@ -200,5 +202,25 @@ extension VNFaceObservation {
         // The coordinates are normalized to the dimensions of the processed image, with the origin at the image's lower-left corner.
         let facebounds = boundingBox.applying(translate).applying(transform)
         return facebounds
+    }
+    func covertedBoundingBoxIn(previewLayer: AVCaptureVideoPreviewLayer) -> CGRect {
+        let origin = previewLayer.layerPointConverted(fromCaptureDevicePoint: boundingBox.origin)
+        let size = previewLayer.layerPointConverted(fromCaptureDevicePoint: boundingBox.size.cgPoint)//?
+        return .init(origin: origin, size: size.cgSize)
+    }
+}
+
+extension UIDevice {
+    func imageOrientation(by position: AVCaptureDevice.Position) -> CGImagePropertyOrientation? {
+        switch (orientation, position) {
+        case (.portrait, .front):
+            return .upMirrored
+        case (.portrait, .back):
+            return .up
+
+        default:
+            //TODO: handle later
+            return nil
+        }
     }
 }

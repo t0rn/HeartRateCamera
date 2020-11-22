@@ -50,9 +50,9 @@ class VideoCaptureService: NSObject, AVCaptureVideoDataOutputSampleBufferDelegat
         return AVCaptureDevice.authorizationStatus(for: .audio)
     }
     
-    private let captureSession = AVCaptureSession()
-    private var videoDevice: AVCaptureDevice!
-    private var videoConnection: AVCaptureConnection!
+    let session = AVCaptureSession()
+    private(set) var videoDevice: AVCaptureDevice!
+    private(set) var videoConnection: AVCaptureConnection!
     private var audioConnection: AVCaptureConnection!
     private(set) var previewLayer: AVCaptureVideoPreviewLayer?
     
@@ -112,15 +112,15 @@ class VideoCaptureService: NSObject, AVCaptureVideoDataOutputSampleBufferDelegat
         catch {
             fatalError("Could not create AVCaptureDeviceInput instance with error: \(error).")
         }
-        guard captureSession.canAddInput(videoDeviceInput) else {
-            fatalError()
+        guard session.canAddInput(videoDeviceInput) else {
+            fatalError("Can't add input device")
         }
-        captureSession.addInput(videoDeviceInput)
+        session.addInput(videoDeviceInput)
     }
     
     func setup(previewContainer: CALayer) {
         DispatchQueue.main.async {
-            let previewLayer = AVCaptureVideoPreviewLayer(session: self.captureSession)
+            let previewLayer = AVCaptureVideoPreviewLayer(session: self.session)
             previewLayer.frame = previewContainer.bounds
             previewLayer.connection?.videoOrientation = .portrait //TODO:
             previewLayer.contentsGravity = .resizeAspectFill
@@ -137,27 +137,27 @@ class VideoCaptureService: NSObject, AVCaptureVideoDataOutputSampleBufferDelegat
         videoDataOutput.alwaysDiscardsLateVideoFrames = true
         let queue = DispatchQueue(label: "com.queue.videosamplequeue")
         videoDataOutput.setSampleBufferDelegate(self, queue: queue)
-        guard captureSession.canAddOutput(videoDataOutput) else {
+        guard session.canAddOutput(videoDataOutput) else {
             fatalError()
         }
-        captureSession.addOutput(videoDataOutput)
+        session.addOutput(videoDataOutput)
         videoConnection = videoDataOutput.connection(with: .video)
     }
     
     func startCapture() {
-        if captureSession.isRunning {
+        if session.isRunning {
             return
         }
-        captureSession.startRunning()
+        session.startRunning()
     }
     
     func stopCapture() {
         print("\(self.classForCoder)/" + #function)
-        if !captureSession.isRunning {
+        if !session.isRunning {
             print("already stopped")
             return
         }
-        captureSession.stopRunning()
+        session.stopRunning()
     }
     
     func resizePreview() {
