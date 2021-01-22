@@ -56,8 +56,8 @@ class VideoCaptureService: NSObject, AVCaptureVideoDataOutputSampleBufferDelegat
     private var audioConnection: AVCaptureConnection!
     private(set) var previewLayer: AVCaptureVideoPreviewLayer?
     
-    typealias ImageBufferHandler = ((_ imageBuffer: CMSampleBuffer) -> ())
-    var imageBufferHandler: ImageBufferHandler?
+    typealias SampleBufferClosure = ((_ imageBuffer: CMSampleBuffer) -> ())
+    var outputBuffer: SampleBufferClosure?
     
     init(cameraType: CameraType, preferredSpec: VideoSpec?, previewContainer: CALayer?) {
         super.init()
@@ -70,8 +70,10 @@ class VideoCaptureService: NSObject, AVCaptureVideoDataOutputSampleBufferDelegat
             setupCaptureSession(for: cameraType, preferredSpec: preferredSpec, previewContainer: previewContainer)
         case .notDetermined:
             AVCaptureDevice.requestAccess(for: .video) { granted in
-                if granted {
-                    self.setupCaptureSession(for: cameraType, preferredSpec: preferredSpec, previewContainer: previewContainer)
+                DispatchQueue.main.async {
+                    if granted {
+                        self.setupCaptureSession(for: cameraType, preferredSpec: preferredSpec, previewContainer: previewContainer)
+                    }
                 }
             }
         case .denied, .restricted:
@@ -122,9 +124,7 @@ class VideoCaptureService: NSObject, AVCaptureVideoDataOutputSampleBufferDelegat
         DispatchQueue.main.async {
             let previewLayer = AVCaptureVideoPreviewLayer(session: self.session)
             previewLayer.frame = previewContainer.bounds
-            previewLayer.connection?.videoOrientation = .portrait //TODO:
-            previewLayer.contentsGravity = .resizeAspectFill
-            previewLayer.videoGravity = .resizeAspectFill
+//            previewLayer.videoGravity = .resizeAspectFill
             previewContainer.insertSublayer(previewLayer, at: 0)
             self.previewLayer = previewLayer
         }
@@ -142,6 +142,11 @@ class VideoCaptureService: NSObject, AVCaptureVideoDataOutputSampleBufferDelegat
         }
         session.addOutput(videoDataOutput)
         videoConnection = videoDataOutput.connection(with: .video)
+        
+        if videoConnection.isVideoOrientationSupported {
+            videoConnection.videoOrientation = .portrait
+        }
+        print("videoConnection.isVideoMirrored: \(videoConnection.isVideoMirrored)")
     }
     
     func startCapture() {
@@ -173,7 +178,7 @@ class VideoCaptureService: NSObject, AVCaptureVideoDataOutputSampleBufferDelegat
                        didOutput sampleBuffer: CMSampleBuffer,
                        from connection: AVCaptureConnection) {
         
-        if let imageBufferHandler = imageBufferHandler {
+        if let imageBufferHandler = outputBuffer {
             imageBufferHandler(sampleBuffer)
         }
     }

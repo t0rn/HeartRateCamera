@@ -27,7 +27,7 @@ class ViewController: UIViewController {
                                     preferredSpec: spec,
                                     previewContainer: previewView.layer)
         
-        videoCapture.imageBufferHandler = { [unowned self] (buffer) in
+        videoCapture.outputBuffer = { [unowned self] (buffer) in
             guard let imageBuffer = CMSampleBufferGetImageBuffer(buffer) else {return}
             self.hrBuffer.handle(imageBuffer: imageBuffer)
         }

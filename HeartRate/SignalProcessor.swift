@@ -51,7 +51,8 @@ class SignalProcessor {
     }
     
     private let ciContext = CIContext(options: [.workingColorSpace: kCFNull])
-            
+    
+    
     func handle(imageBuffer: CVImageBuffer, cropRect:CGRect? = nil) {
         guard let inputCGImage = CIImage(cvImageBuffer: imageBuffer).cgImage() else {return}
         var inputImage = CIImage(cgImage: inputCGImage)
@@ -60,16 +61,20 @@ class SignalProcessor {
             inputImage = inputImage.cropped(to: cropRect)
         }
 
+        processROI(image: inputImage)
+    }
+    
+    func processROI(image: CIImage) {
         //TODO: tesing
-        if let x = inputImage.cgImage() {
+        if let x = image.cgImage() {
             if true == inputImages.isFull {
                 _ = inputImages.read()
             }
             inputImages.write(x)
         }
 //        inputImage.saveJPEG("ROI_\(inputSignal.count)")
-        guard inputImage.extent.isEmpty == false,
-            let averageColor = inputImage.averageColor(in:ciContext) else {
+        guard image.extent.isEmpty == false,
+            let averageColor = image.averageColor(in:ciContext) else {
                 print("Cant create averageColor!")
                 return
         }

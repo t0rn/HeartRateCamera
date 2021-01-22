@@ -27,7 +27,7 @@ class FaceViewController: UIViewController {
         let videoCapture = VideoCaptureService(cameraType: .front,
                                         preferredSpec: spec,
                                         previewContainer: self.previewView.layer)
-        videoCapture.imageBufferHandler = { [weak self] (imageBuffer) in
+        videoCapture.outputBuffer = { [weak self] (imageBuffer) in
             self?.handle(buffer: imageBuffer)
         }
         return videoCapture
@@ -35,6 +35,14 @@ class FaceViewController: UIViewController {
     
     var sequenceHandler = VNSequenceRequestHandler()
     
+    
+    
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        faceViewFrame = faceView.frame
+    }
+    
+    var faceViewFrame: CGRect!
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
@@ -60,25 +68,18 @@ class FaceViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
     }
-    
-    var faceViewBounds: CGRect?
-    
-    override func viewDidLayoutSubviews() {
-        super.viewDidLayoutSubviews()
-        faceViewBounds = faceView.bounds
-    }
-    
+        
     func handle(buffer:CMSampleBuffer) {
         guard let imageBuffer = CMSampleBufferGetImageBuffer(buffer) else {return}
         //crop image buffer to ROI (forehead) size
         let detectFaceRequest = VNDetectFaceLandmarksRequest { (request, error) in
             self.detectedFace(request: request, error: error, imageBuffer: imageBuffer)
         }
-        let imageOrientation = UIDevice.current.imageOrientation(by: videoCapture.videoDevice.position)
+        let imageOrientation = UIDevice.current.imageOrientation(by: videoCapture.videoDevice.position) ?? .up
         do {
             try sequenceHandler.perform([detectFaceRequest],
                                         on: imageBuffer,
-                                        orientation: imageOrientation ?? .up) //TODO: define
+                                        orientation: .leftMirrored) //leftMirrored works fine
         } catch {
             print(error.localizedDescription)
             return
@@ -94,6 +95,7 @@ class FaceViewController: UIViewController {
                 signalProcessor.stop()
                 return
         }
+        
         updateFaceView(for: face)
         //define rect of ROI (forehead) from imagebuffer
         if false == faceView.forehead.isEmpty,
@@ -110,20 +112,73 @@ class FaceViewController: UIViewController {
                                       height: bottomMostPoint.y - topMostPoint.y)
             //https://nacho4d-nacho4d.blogspot.com/2012/03/coreimage-and-uikit-coordinates.html
             //TODO: make it relative in coordinates
-            let image = CIImage(cvImageBuffer: imageBuffer)
-//
-            var transform = CGAffineTransform(scaleX: 1, y: -1)
-            transform = transform.translatedBy(x: 0, y: -image.extent.size.height)
+            let imageBufer = CIImage(cvImageBuffer: imageBuffer)
+//            let transform = CGAffineTransform(scaleX: 1, y: -1)
+//                .translatedBy(x: 0, y: -imageBufer.extent.size.height)
+//                .translatedBy(x: 0, y: -faceViewFrame.size.height)
             
-            let wFactor = image.extent.width / faceViewBounds!.width
-            let hFactor = image.extent.height / faceViewBounds!.height
-            let o = CGPoint(x: foreheadOrigin.x * wFactor,
-                            y: foreheadOrigin.y * hFactor)
-            let size = CGSize(width: foreheadRect.width * wFactor,
-                              height: foreheadRect.height * hFactor)
-            let cropRect = CGRect(origin: o, size: size)
+            //notice that preview layer is scaled
+            
+//            let screenScale = UIScreen.main.scale
+            
+            ///works fine with default videoGravity = rizesAspect
+            let wScaleFactor = faceViewFrame.width / imageBufer.extent.width
+            let hScaleFactor = faceViewFrame.height / imageBufer.extent.height
+            let foreheadImageWidth = foreheadRect.width / wScaleFactor
+            let foreheadImageHeight = foreheadRect.height / hScaleFactor
+            let foreheadImageX = foreheadRect.origin.x / wScaleFactor
+            let foreheadImageY = (imageBufer.extent.height - (foreheadRect.maxY / hScaleFactor))
+            ///
+            
+            
+//            let foreheadImageWidth = foreheadRect.width * imageBufer.extent.width / faceViewFrame.width
+//            let foreheadImageHeight = foreheadRect.height * imageBufer.extent.height / faceViewFrame.height
+//            let foreheadImageX = foreheadRect.origin.x * imageBufer.extent.width / faceViewFrame.width
+//
+//            let foreheadImageMaxY = imageBufer.extent.height - (foreheadRect.origin.y * imageBufer.extent.height / faceViewFrame.height)
+//            let foreheadImageY = foreheadImageMaxY - (foreheadRect.height * imageBufer.extent.height / faceViewFrame.height)
+            
+            // CoreImage coordinate system origin is at the bottom left corner
+            // and UIKit is at the top left corner. So we need to translate
+            // features positions before drawing them to screen. In order to do
+            // so we make an affine transform
+//            let foreheadImageY = foreheadRect.origin.y * imageBufer.extent.height / faceViewFrame.height
+//            var transform = CGAffineTransform(scaleX: 1, y: -1);
+//            transform = transform.translatedBy(x: 0, y: -faceViewFrame.size.height)
+//            transform = transform.translatedBy(x: 0, y: -imageBufer.extent.height)
+            
+//            let foreheadImageFrame = face.convertWith(previewLayerFrame: foreheadRect)
+            let foreheadImageFrame = CGRect(x: foreheadImageX, y: foreheadImageY,
+                                            width: foreheadImageWidth, height: foreheadImageHeight)
+
+//                .applying(transform)
+            print("foreheadImageFrame \(foreheadImageFrame)")
+            //normalized from 0 to 1
+//            let foreheadImageFrame = videoCapture.previewLayer!.metadataOutputRectConverted(fromLayerRect: foreheadRect) // какая то херня
+            //NOTE: foreheadImageFrame with < than height!
+            //video is mirrored by width with portrait orientation
+//            let cropRect = CGRect(origin: .init(x: foreheadImageFrame.minX * image.extent.maxX, y: foreheadImageFrame.minY * image.extent.maxY),
+//                                  size: .init(width: foreheadImageFrame.maxX * image.extent.maxX, height: foreheadImageFrame.maxY * image.extent.maxY))
+            //rotated
+//            let cropRect = CGRect(origin: .init(x: foreheadImageFrame.minX * image.extent.maxX, y: foreheadImageFrame.minY * image.extent.maxY),
+//                                  size: .init(width: foreheadImageFrame.maxY * image.extent.maxY, height: foreheadImageFrame.maxX * image.extent.maxX))
 //            let cropRect = CGRect(origin: o, size: size).applying(transform)
-            signalProcessor.handle(imageBuffer: imageBuffer, cropRect: cropRect)
+            
+            let foreheadImage = imageBufer.cropped(to: foreheadImageFrame)
+            signalProcessor.processROI(image: foreheadImage)
+//            let fhImg = foreheadImage.cgImage()
+            
+            
+            //see https://developer.apple.com/documentation/vision/cropping_images_using_saliency
+//            let rec = VNImageRectForNormalizedRect(foreheadImageFrame,Int(image.extent.size.width),Int(image.extent.size.height))
+//            //see https://stackoverflow.com/questions/55132517/incorrect-frame-of-boundingbox-with-vnrecognizedobjectobservation
+//            let viewRect = faceViewFrame!
+//            let scale = CGAffineTransform.identity.scaledBy(x: viewRect.width, y: viewRect.height)
+//            let transform = CGAffineTransform(scaleX: 1, y: -1).translatedBy(x: 0, y: -viewRect.height)
+//            let observationRect = face.boundingBox.applying(scale).applying(transform)
+//
+        
+//            signalProcessor.handle(imageBuffer: imageBuffer, cropRect: observationRect)
         }
     }
     
@@ -137,12 +192,9 @@ class FaceViewController: UIViewController {
             let landmarks = face.landmarks,
             let previewLayer = videoCapture.previewLayer
             else {return}
-        //bounding box are normalized between 0.0 and 1.0 to the input image, with the origin at the bottom left corner
-//        let box = face.boundingBox
-//        faceView.boundingBox = convert(rect: box)
-//        faceView.boundingBox = face.convertedBoundingBox(for: previewLayer.frame)
-        faceView.boundingBox = face.covertedBoundingBoxIn(previewLayer: previewLayer)
-                
+
+        faceView.boundingBox = previewLayer.layerRectConverted(fromMetadataOutputRect: face.boundingBox)
+
         if let leftEyebrow = landmark(points: landmarks.leftEyebrow?.normalizedPoints, to: face.boundingBox) {
             faceView.leftEyebrow = leftEyebrow
         }
@@ -223,4 +275,16 @@ extension UIDevice {
             return nil
         }
     }
+}
+extension VNFaceObservation {
+  //see https://stackoverflow.com/questions/45151218/vnfaceobservation-boundingbox-not-scaling-in-portrait-mode
+  func convertWith(previewLayerFrame: CGRect) -> CGRect {
+    let size = CGSize(width: boundingBox.width * previewLayerFrame.width,
+                      height: boundingBox.height * previewLayerFrame.height)
+    let origin = CGPoint(x: boundingBox.minX * previewLayerFrame.width,
+                         y: (1 - boundingBox.minY) * previewLayerFrame.height)
+    let result = CGRect(origin: origin, size: size)
+    print(result)
+    return result
+  }
 }
