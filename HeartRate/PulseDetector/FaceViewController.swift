@@ -110,75 +110,42 @@ class FaceViewController: UIViewController {
                                       y: foreheadOrigin.y,
                                       width: rightMostPoint.x - leftMostPoint.x,
                                       height: bottomMostPoint.y - topMostPoint.y)
-            //https://nacho4d-nacho4d.blogspot.com/2012/03/coreimage-and-uikit-coordinates.html
-            //TODO: make it relative in coordinates
+
             let imageBufer = CIImage(cvImageBuffer: imageBuffer)
-//            let transform = CGAffineTransform(scaleX: 1, y: -1)
-//                .translatedBy(x: 0, y: -imageBufer.extent.size.height)
-//                .translatedBy(x: 0, y: -faceViewFrame.size.height)
-            
             //notice that preview layer is scaled
+
+            //for resizeAspectFill videoGravity
+            //определить по какой стороне заполнено?
+            //предположит по ширине
+
+            let imageSize = imageBufer.extent.size
+            let faceViewSize = faceViewFrame.size
+
+            var scaleFactor : CGFloat = faceViewSize.width / imageSize.width
+            if imageSize.height * scaleFactor < faceViewSize.height {
+                scaleFactor = faceViewSize.height / imageSize.height
+            }
+            let visibleImageSize = CGSize(width:faceViewSize.width/scaleFactor, height:faceViewSize.height/scaleFactor)
+            let visibleImageWidth = (imageSize.width - visibleImageSize.width) / 2.0
+            let visibleImageHeight = (imageSize.height - visibleImageSize.height) / 2.0
             
-//            let screenScale = UIScreen.main.scale
+            let visibleImageRect = CGRect(origin: .init(x: visibleImageWidth,
+                                                        y: visibleImageHeight),
+                                          size: visibleImageSize)
             
-            ///works fine with default videoGravity = rizesAspect
-            let wScaleFactor = faceViewFrame.width / imageBufer.extent.width
-            let hScaleFactor = faceViewFrame.height / imageBufer.extent.height
-            let foreheadImageWidth = foreheadRect.width / wScaleFactor
-            let foreheadImageHeight = foreheadRect.height / hScaleFactor
-            let foreheadImageX = foreheadRect.origin.x / wScaleFactor
-            let foreheadImageY = (imageBufer.extent.height - (foreheadRect.maxY / hScaleFactor))
-            ///
-            
-            
-//            let foreheadImageWidth = foreheadRect.width * imageBufer.extent.width / faceViewFrame.width
-//            let foreheadImageHeight = foreheadRect.height * imageBufer.extent.height / faceViewFrame.height
-//            let foreheadImageX = foreheadRect.origin.x * imageBufer.extent.width / faceViewFrame.width
-//
-//            let foreheadImageMaxY = imageBufer.extent.height - (foreheadRect.origin.y * imageBufer.extent.height / faceViewFrame.height)
-//            let foreheadImageY = foreheadImageMaxY - (foreheadRect.height * imageBufer.extent.height / faceViewFrame.height)
-            
-            // CoreImage coordinate system origin is at the bottom left corner
-            // and UIKit is at the top left corner. So we need to translate
-            // features positions before drawing them to screen. In order to do
-            // so we make an affine transform
-//            let foreheadImageY = foreheadRect.origin.y * imageBufer.extent.height / faceViewFrame.height
-//            var transform = CGAffineTransform(scaleX: 1, y: -1);
-//            transform = transform.translatedBy(x: 0, y: -faceViewFrame.size.height)
-//            transform = transform.translatedBy(x: 0, y: -imageBufer.extent.height)
-            
-//            let foreheadImageFrame = face.convertWith(previewLayerFrame: foreheadRect)
+            let foreheadImageWidth = foreheadRect.width / scaleFactor
+            let foreheadImageHeight = foreheadRect.height / scaleFactor
+            let foreheadImageX = foreheadRect.origin.x / scaleFactor //mirrored for front camera
+            let foreheadImageY = (imageSize.height - visibleImageHeight) - (foreheadRect.maxY / scaleFactor)
+
+
             let foreheadImageFrame = CGRect(x: foreheadImageX, y: foreheadImageY,
                                             width: foreheadImageWidth, height: foreheadImageHeight)
 
-//                .applying(transform)
             print("foreheadImageFrame \(foreheadImageFrame)")
-            //normalized from 0 to 1
-//            let foreheadImageFrame = videoCapture.previewLayer!.metadataOutputRectConverted(fromLayerRect: foreheadRect) // какая то херня
-            //NOTE: foreheadImageFrame with < than height!
-            //video is mirrored by width with portrait orientation
-//            let cropRect = CGRect(origin: .init(x: foreheadImageFrame.minX * image.extent.maxX, y: foreheadImageFrame.minY * image.extent.maxY),
-//                                  size: .init(width: foreheadImageFrame.maxX * image.extent.maxX, height: foreheadImageFrame.maxY * image.extent.maxY))
-            //rotated
-//            let cropRect = CGRect(origin: .init(x: foreheadImageFrame.minX * image.extent.maxX, y: foreheadImageFrame.minY * image.extent.maxY),
-//                                  size: .init(width: foreheadImageFrame.maxY * image.extent.maxY, height: foreheadImageFrame.maxX * image.extent.maxX))
-//            let cropRect = CGRect(origin: o, size: size).applying(transform)
             
             let foreheadImage = imageBufer.cropped(to: foreheadImageFrame)
             signalProcessor.processROI(image: foreheadImage)
-//            let fhImg = foreheadImage.cgImage()
-            
-            
-            //see https://developer.apple.com/documentation/vision/cropping_images_using_saliency
-//            let rec = VNImageRectForNormalizedRect(foreheadImageFrame,Int(image.extent.size.width),Int(image.extent.size.height))
-//            //see https://stackoverflow.com/questions/55132517/incorrect-frame-of-boundingbox-with-vnrecognizedobjectobservation
-//            let viewRect = faceViewFrame!
-//            let scale = CGAffineTransform.identity.scaledBy(x: viewRect.width, y: viewRect.height)
-//            let transform = CGAffineTransform(scaleX: 1, y: -1).translatedBy(x: 0, y: -viewRect.height)
-//            let observationRect = face.boundingBox.applying(scale).applying(transform)
-//
-        
-//            signalProcessor.handle(imageBuffer: imageBuffer, cropRect: observationRect)
         }
     }
     
