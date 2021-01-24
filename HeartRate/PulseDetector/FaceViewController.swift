@@ -110,14 +110,9 @@ class FaceViewController: UIViewController {
                                       y: foreheadOrigin.y,
                                       width: rightMostPoint.x - leftMostPoint.x,
                                       height: bottomMostPoint.y - topMostPoint.y)
-
             let imageBufer = CIImage(cvImageBuffer: imageBuffer)
-            //notice that preview layer is scaled
-
             //for resizeAspectFill videoGravity
-            //определить по какой стороне заполнено?
-            //предположит по ширине
-
+            imageBufer.transformed(by: .init(scaleX: 1, y: -1))
             let imageSize = imageBufer.extent.size
             let faceViewSize = faceViewFrame.size
 
@@ -126,25 +121,29 @@ class FaceViewController: UIViewController {
                 scaleFactor = faceViewSize.height / imageSize.height
             }
             let visibleImageSize = CGSize(width:faceViewSize.width/scaleFactor, height:faceViewSize.height/scaleFactor)
-            let visibleImageWidth = (imageSize.width - visibleImageSize.width) / 2.0
+
             let visibleImageHeight = (imageSize.height - visibleImageSize.height) / 2.0
-            
-            let visibleImageRect = CGRect(origin: .init(x: visibleImageWidth,
-                                                        y: visibleImageHeight),
-                                          size: visibleImageSize)
+//            let visibleImageWidth = (imageSize.width - visibleImageSize.width) / 2.0
+//            let visibleImageRect = CGRect(origin: .init(x: visibleImageWidth,
+//                                                        y: visibleImageHeight),
+//                                          size: visibleImageSize)
             
             let foreheadImageWidth = foreheadRect.width / scaleFactor
             let foreheadImageHeight = foreheadRect.height / scaleFactor
-            let foreheadImageX = foreheadRect.origin.x / scaleFactor //mirrored for front camera
+            
+            let foreheadImageX = foreheadRect.minX / scaleFactor //mirrored for front camera
+            
             let foreheadImageY = (imageSize.height - visibleImageHeight) - (foreheadRect.maxY / scaleFactor)
-
 
             let foreheadImageFrame = CGRect(x: foreheadImageX, y: foreheadImageY,
                                             width: foreheadImageWidth, height: foreheadImageHeight)
 
-            print("foreheadImageFrame \(foreheadImageFrame)")
-            
-            let foreheadImage = imageBufer.cropped(to: foreheadImageFrame)
+            //apply x axis transformation for front camera imageBuffer (.leftMirrored)
+            let foreheadImage = imageBufer
+                .transformed(by: .init(translationX: -imageBufer.extent.width, y: 1))
+                .transformed(by: .init(scaleX: -1, y: 1))
+                .cropped(to: foreheadImageFrame)
+
             signalProcessor.processROI(image: foreheadImage)
         }
     }
