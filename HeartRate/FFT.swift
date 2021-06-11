@@ -1,6 +1,6 @@
 //
 //  FFT.swift
-//  FastICA_CLI
+//
 //
 //  Created by Alexey Ivanov on 03.06.2020.
 //  Copyright © 2020 Alexey Ivanov. All rights reserved.

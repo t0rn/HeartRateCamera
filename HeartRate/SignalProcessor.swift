@@ -235,11 +235,6 @@ class SignalProcessor {
     
     func stop() {
         
-        //TODO: delegate!
-        //                DispatchQueue.main.async {
-        //                    self.pulseLabel.text = "Put your finger on camera!"
-        //                }
-        
         if inputSignal.count > 0 {
             try? inputSignal.map{ String(describing: $0) }
                 .joined(separator: "\n")

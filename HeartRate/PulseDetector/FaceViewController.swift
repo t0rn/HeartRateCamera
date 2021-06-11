@@ -47,6 +47,9 @@ class FaceViewController: UIViewController {
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         videoCapture.startCapture()
+
+        UIApplication.shared.isIdleTimerDisabled = true
+        
         Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { [weak self] (timer) in
             guard let self = self else {return}
             //print valid frames
@@ -62,20 +65,24 @@ class FaceViewController: UIViewController {
                 }
             }
         }
-
+    }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        UIApplication.shared.isIdleTimerDisabled = false
     }
     
     override func viewDidLoad() {
         super.viewDidLoad()
     }
         
-    func handle(buffer:CMSampleBuffer) {
-        guard let imageBuffer = CMSampleBufferGetImageBuffer(buffer) else {return}
-        //crop image buffer to ROI (forehead) size
+    func handle(buffer: CMSampleBuffer) {
+//        guard let imageBuffer = CMSampleBufferGetImageBuffer(buffer) else {return}
+        guard let imageBuffer = buffer.imageBuffer else {return}
         let detectFaceRequest = VNDetectFaceLandmarksRequest { (request, error) in
             self.detectedFace(request: request, error: error, imageBuffer: imageBuffer)
         }
-        let imageOrientation = UIDevice.current.imageOrientation(by: videoCapture.videoDevice.position) ?? .up
+
         do {
             try sequenceHandler.perform([detectFaceRequest],
                                         on: imageBuffer,
@@ -180,23 +187,6 @@ class FaceViewController: UIViewController {
                                  CGPoint(x: rightBrowTopMost.x, y: faceView.boundingBox.minY),
                                  rightBrowTopMost]
         }
-    }
-    
-    func normalize(rect:CGRect, from parent:CGRect) -> CGRect {
-        var result = parent
-        result.origin.x /= parent.width
-        result.origin.y /= parent.height
-        result.size.width /= parent.width
-        result.size.height /= parent.height
-        return result
-    }
-    
-    //from normalized
-    func convert(rect: CGRect) -> CGRect {
-        let origin = videoCapture.previewLayer!.layerPointConverted(fromCaptureDevicePoint: rect.origin)
-        //sizse wuth y with negative value!
-        let size = videoCapture.previewLayer!.layerPointConverted(fromCaptureDevicePoint: rect.size.cgPoint)
-        return CGRect(origin: origin, size: size.cgSize)
     }
     
     //normalized point + normalized rect

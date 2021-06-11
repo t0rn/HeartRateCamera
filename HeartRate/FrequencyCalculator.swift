@@ -37,15 +37,10 @@ class FrequencyCalculator {
         self.sampleRate = sampleRate
         fft = FFT(length: windowSize)
     }
-    
-    var fps: Float {
-        let seconds = Float(window.count) / sampleRate
-        return Float(window.count) / seconds
-    }
-    
+        
     ///Returns frequency with max power
     func maxFrequency(phase:[Float], spectrum: [Float]) -> Float {
-        let freqs = getFrequencies(signal.count, fps: fps)
+        let freqs = getFrequencies(signal.count, fps: sampleRate)
         
 //        let (_, filteredPhase, filteredSpectrum) = filter(signal: signal, fps: fps)
         
@@ -69,7 +64,7 @@ class FrequencyCalculator {
         // ----------------------------------------------------------------
         
         // Get the Frequencies for the current Framerate
-        let freqs = getFrequencies(N,fps: fps)
+        let freqs = getFrequencies(N,fps: sampleRate)
         // Get a Bandpass Filter
         let bandPassFilter = generateBandPassFilter(freqs)
         
